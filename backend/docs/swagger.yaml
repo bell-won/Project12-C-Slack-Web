@@ -1,122 +1,1814 @@
----
 openapi: 3.0.0
 info:
-  description: This is a simple API
-  version: 1.0.0
-  title: Simple Inventory API
-  contact:
-    email: you@your-company.com
+  title: Project12-C-Slack-clone API
+  description: Project12-C-Slack-clone API
   license:
     name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-host: virtserver.swaggerhub.com
-basePath: /solo295/test/1.0.0
-tags:
-  - name: admins
-    description: Secured Admin-only calls
-  - name: developers
-    description: Operations available to regular developers
-schemes:
-  - https
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0-oas3
+servers:
+  - url: 'http://101.101.218.104:5000'
+  - url: 'https://api.slack-clone.kro.kr'
 paths:
-  /inventory:
+  /api/workspace:
     get:
       tags:
-        - developers
-      summary: searches inventory
-      description: |
-        By passing in the appropriate options, you can search for
-        available inventory in the system
-      operationId: searchInventory
-      produces:
-        - application/json
+        - workspace
+      summary: select user workspace
+      description: select user workspace userID 미들웨어에서 추가
       parameters:
-        - name: searchString
+        - name: userID
           in: query
-          description: pass an optional search string for looking up inventory
-          required: false
-          type: string
-        - name: skip
+          description: user id
+          required: true
+          explode: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workspaces:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                        creator:
+                          type: string
+          description: success
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        default:
+          description: Default error sample response
+    post:
+      tags:
+        - workspace
+      summary: create new workspace
+      description: Create new workspace
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  inviteCode:
+                    type: string
+                    description: workspace url
+                  workspaceId:
+                    type: string
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        default:
+          description: Default error sample response
+      parameters:
+        - name: userID
           in: query
-          description: number of records to skip for pagination
-          required: false
-          type: integer
-          minimum: 0
-          format: int32
-        - name: limit
+          description: user id
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: name
           in: query
-          description: maximum number of records to return
+          description: workspace name
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: channelName
+          in: query
+          description: Channel name created by default
           required: false
-          type: integer
-          maximum: 50
-          minimum: 0
-          format: int32
+          style: form
+          explode: true
+          schema:
+            type: string
+  /api/workspace/invite:
+    summary: invite to workspace
+    description: invite to workspace
+    post:
+      tags:
+        - workspace
+      summary: invite to workspace
+      description: invite to workspace
+      operationId: ''
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  inviteCode:
+                    type: string
+                    description: invite code
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        default:
+          description: Default error sample response
+      parameters:
+        - name: workspaceID
+          in: query
+          description: workspace id
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: integer
+        - name: userID
+          in: query
+          description: user id
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+  /api/workspace/invite/{code}:
+    summary: invited to workspace
+    description: invited to workspace
+    get:
+      tags:
+        - workspace
+      summary: invited to workspace
+      description: invited to workspace
+      operationId: ''
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  inviteCode:
+                    type: string
+                    description: invite code
+          description: success response
+        '304':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: unauthorized
+        default:
+          description: Default error sample response
+      parameters:
+        - name: userID
+          in: query
+          description: user id
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: code
+          in: path
+          description: invite code
+          required: true
+          explode: true
+          schema:
+            type: string
+  /api/workspace/check-duplicate-name:
+    summary: check duplicate workspace name
+    description: invitedcheck duplicate workspace name
+    get:
+      tags:
+        - workspace
+      summary: check duplicate workspace name
+      description: check duplicate workspace name
+      operationId: ''
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: boolean
+                    description: is duplicate
+          description: success response
+        default:
+          description: Default error sample response
+      parameters:
+        - name: name
+          in: query
+          description: workspace name
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+  /api/workspace/info/{workspaceId}:
+    summary: get workspace, workspace user info
+    description: get workspace, workspace user info
+    get:
+      tags:
+        - workspace
+      summary: get workspace, workspace user info
+      description: get workspace, workspace user info
+      parameters:
+        - name: workspaceId
+          in: path
+          description: workspaceId
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: query
+          description: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      title:
+                        type: string
+                      displayName:
+                        type: string
+                      pause:
+                        type: string
+                      phoneNumber:
+                        type: string
+                      timeZone:
+                        type: string
+                      profileUrl:
+                        type: string
+                      status:
+                        type: string
+                      expireStatus:
+                        type: string
+                      isAdmin:
+                        type: boolean
+                      isActive:
+                        type: boolean
+                      worksacpeId:
+                        type: string
+                      sections:
+                        type: array
+                        items:
+                          type: string
+                      workspaceInfo:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          name:
+                            type: string
+                          creator:
+                            type: string
+                          profileUrl:
+                            type: string
+                          default_channel:
+                            type: string
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        '600':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: DB Error
+
+  /api/thread/follow:
+    summary: update follow config
+    description: follow 설정을 변경한다.
+    patch:
+      tags:
+        - thread
+      summary: update follow config
+      description: follow 설정을 변경한다.
+      parameters:
+        - name: workspaceUserInfoId
+          in: query
+          description: workspaceUserInfoId
+          required: true
+          explode: true
+          schema:
+            type: integer
+        - name: chatId
+          in: query
+          description: chatId
+          required: true
+          explode: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        default:
+          description: Default error sample response
+  /api/channel/description:
+    summary: update channel description
+    description: channel description 변경
+    patch:
+      tags:
+        - channel
+      summary: update channel description
+      description: channel description 변경
+      parameters:
+        - name: channelId
+          in: query
+          description: channelId
+          required: true
+          explode: true
+          schema:
+            type: integer
+        - name: description
+          in: query
+          description: 변경 될 description
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        default:
+          description: Default error sample response
+  /api/channel/topic:
+    summary: update channel topic
+    description: channel topic 변경
+    patch:
+      tags:
+        - channel
+      summary: update channel topic
+      description: channel topic 변경
+      parameters:
+        - name: channelId
+          in: query
+          description: channelId
+          required: true
+          explode: true
+          schema:
+            type: integer
+        - name: topic
+          in: query
+          description: 변경 될 topic
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: success
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        default:
+          description: Default error sample response
+  /api/channel/check-duplicate-name:
+    summary: check duplicated name
+    description: 채널 이름 중복 확인
+    get:
+      tags:
+        - channel
+      summary: check duplicated name
+      description: 채널 이름 중복 확인
+      parameters:
+        - name: title
+          in: query
+          description: 확인 할 채널 이름
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: workspaceId
+          in: query
+          description: 워크스페이스 id
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: boolean
+          description: success
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+          description: bad request
+        '600':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+          description: DB Error
+        default:
+          description: Default error sample response
+  /api/channel:
+    summary: create channel
+    description: channel 생성
+    post:
+      tags:
+        - channel
+      summary: create channel
+      description: channel 생성
+      parameters:
+        - name: title
+          in: query
+          description: channel title
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: creator
+          in: query
+          description: channel creator, middleware로 userId 전달
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: description
+          in: query
+          description: channel description
+          explode: true
+          schema:
+            type: string
+        - name: workspaceId
+          in: query
+          description: workspace Id
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: channelType
+          in: query
+          description: channel type, (private = 0, public = 1, DM = 2)
+          required: true
+          explode: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  channelId:
+                    type: integer
+                    description: channelId
+          description: success response
+
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+        default:
+          description: Default error sample response
+    get:
+      tags:
+        - channel
+      summary: get channel list
+      description: get channel list
+      operationId: ''
+      parameters:
+        - name: workspaceUserInfoId
+          in: query
+          description: workspaceUserInfo id
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: object
+                        channelId:
+                          type: object
+                          properties:
+                            _id:
+                              type: object
+                            title:
+                              type: string
+                            description:
+                              type: string
+                            topic:
+                              type: string
+                            channelType:
+                              type: integer
+                            creator:
+                              type: object
+                            isDeleted:
+                              type: boolean
+                            createdAt:
+                              format: date-time
+                              type: string
+                            updatedAt:
+                              format: date-time
+                              type: string
+                            member:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  workspaceUserInfoId:
+                                    type: object
+                                  displayName:
+                                    type: string
+                                  profileUrl:
+                                    type: string
+                                  isActive:
+                                    type: boolean
+                        sectionName:
+                          type: string
+                        readChatId:
+                          type: string
+                        isMute:
+                          type: boolean
+                        notification:
+                          type: number
+                        createdAt:
+                          format: date-time
+                          type: string
+                        updatedAt:
+                          format: date-time
+                          type: string
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+
+  /api/user/sign-in/github:
+    summary: workspace user login
+    description: selectworkspace user login
+    post:
+      tags:
+        - user
+      summary: workspace user login
+      description: workspace user login
+      operationId: ''
+      parameters:
+        - name: oauthId
+          in: query
+          description: workspace user id
+          required: true
+          explode: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: signin success
+        '400':
+          description: bad input parameter
+  /api/user/sign-out:
+    summary: workspace user signout
+    description: selectworkspace user signout
+    delete:
+      tags:
+        - user
+      summary: workspace user signout
+      description: workspace user signout
+      operationId: ''
+      parameters:
+        - name: workspaceUserInfoId
+          in: query
+          description: workspace user id
+          required: true
+          explode: true
+          schema:
+            type: integer
       responses:
         '200':
           description: search results matching criteria
+        '400':
+          description: bad input parameter
+  /api/user/sign-in/google:
+    summary: google login
+    description: google login
+    get:
+      tags:
+        - user
+      summary: google login
+      description: google login
+      operationId: ''
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: google login
+
+  /api/user/sign-in/google/callback:
+    summary: google login callback
+    description: google login callback
+    get:
+      tags:
+        - user
+      summary: google login
+      description: google login
+      operationId: ''
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  redirectUrl:
+                    type: string
+          description: google login callback
+
+  /api/channel/{channelId}/info:
+    summary: get channel info for channel header// private=0, public=1, DM=2
+    description: get channel info for channel header// private=0, public=1, DM=2
+    get:
+      tags:
+        - channel
+      summary: get channel info for channel header// private=0, public=1, DM=2
+      description: get channel info for channel header// private=0, public=1, DM=2
+      parameters:
+        - name: channelId
+          in: path
+          description: channel id
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      channelId:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          title:
+                            type: string
+                          description:
+                            type: string
+                          topic:
+                            type: string
+                          channelType:
+                            type: integer
+                          creator:
+                            type: string
+                          isDeleted:
+                            type: boolean
+                          createdAt:
+                            format: date-time
+                            type: string
+                          updatedAt:
+                            format: date-time
+                            type: string
+                      member:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            fullName:
+                              type: string
+                            displayName:
+                              type: string
+                            profileUrl:
+                              type: string
+                            isActive:
+                              type: boolean
+                            userId:
+                              type: string
+                      sectionName:
+                        type: string
+                      readChatId:
+                        type: string
+                      isMute:
+                        type: boolean
+                      notification:
+                        type: number
+                      createdAt:
+                        format: date-time
+                        type: string
+                      updatedAt:
+                        format: date-time
+                        type: string
+                      workspaceUserInfoId:
+                        type: object
+                      pinnedCount:
+                        type: number
+          description: get channel info for channel header
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: bad request
+
+  /api/channel/invite:
+    summary: invite user to channel
+    description: invite user to channel
+    post:
+      tags:
+        - channel
+      summary: invite user to channel
+      description: invite user to channel
+      operationId: ''
+      parameters:
+        - name: workspaceUserInfoId
+          in: query
+          description: workspaceUserInfo id
+          required: true
+          style: form
+          explode: true
           schema:
             type: array
             items:
-              $ref: '#/definitions/InventoryItem'
-        '400':
-          description: bad input parameter
+              type: object
+              properties:
+                workspaceUserInfoId:
+                  type: string
+        - name: channelId
+          in: query
+          description: channelId id
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: invite user to channel
+
+  /api/channel/mute:
+    summary: update channel mute option
+    description: update channel mute option
+    patch:
+      tags:
+        - channel
+      summary: update channel mute option
+      description: update channel mute option
+      operationId: ''
+      parameters:
+        - name: workspaceUserInfoId
+          in: query
+          description: workspaceUserInfo id
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: channelId
+          in: query
+          description: channel id
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: update channel mute option
+
+  /api/search/userId:
+    summary: search user for inviting
+    description: search user for inviting
     post:
       tags:
-        - admins
-      summary: adds an inventory item
-      description: Adds an item to the system
-      operationId: addInventory
-      consumes:
-        - application/json
-      produces:
-        - application/json
+        - search
+      summary: search user for inviting
+      description: search user for inviting
+      operationId: ''
       parameters:
-        - in: body
-          name: inventoryItem
-          description: Inventory item to add
-          required: false
+        - name: keyword
+          in: query
+          description: keyword
+          required: true
+          style: form
+          explode: true
           schema:
-            $ref: '#/definitions/InventoryItem'
+            type: string
+        - name: workspaceId
+          in: query
+          description: workspaceId
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: channelId
+          in: query
+          description: channelId
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
       responses:
-        '201':
-          description: item created
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        fullName:
+                          type: string
+                        displayName:
+                          type: string
+                        profileUrl:
+                          type: string
+                        isActive:
+                          type: boolean
+          description: search user for inviting
         '400':
-          description: invalid input, object invalid
-        '409':
-          description: an existing item already exists
-definitions:
-  InventoryItem:
-    type: object
-    required:
-      - id
-      - manufacturer
-      - name
-      - releaseDate
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: d290f1ee-6c54-4b01-90e6-d701748f0851
-      name:
-        type: string
-        example: Widget Adapter
-      releaseDate:
-        type: string
-        format: date-time
-        example: 2016-08-29T09:12:33.001Z
-      manufacturer:
-        $ref: '#/definitions/Manufacturer'
-  Manufacturer:
-    required:
-      - name
-    properties:
-      name:
-        type: string
-        example: ACME Corporation
-      homePage:
-        type: string
-        format: url
-        example: https://www.acme-corp.com
-      phone:
-        type: string
-        example: 408-867-5309
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+
+  /api/direct-message:
+    summary: get users last dm
+    description: get users last dm
+    get:
+      tags:
+        - direct message
+      summary: get users last dm
+      description: get users last dm
+      operationId: ''
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        channel:
+                          type: object
+                          properties:
+                            channelId:
+                              type: string
+                            channelTitle:
+                              type: string
+                        user:
+                          type: object
+                          properties:
+                            workspaceUserInfoId:
+                              type: string
+                            displayName:
+                              type: string
+                            profileUrl:
+                              type: string
+                        contents:
+                          type: string
+                        createdAt:
+                          format: date-time
+                          type: string
+          description: get users last dm
+
+  /api/mention-reaction:
+    summary: get user mention and reaction
+    description: get user mention and reaction
+    get:
+      tags:
+        - mention & reaction
+      summary: get user mention and reaction
+      description: get user mention and reaction
+      operationId: ''
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  result:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        chat:
+                          type: object
+                          properties:
+                            chatId:
+                              type: string
+                            creatorId:
+                              type: string
+                            creatorDisplayName:
+                              type: string
+                            contents:
+                              type: string
+                            createdAt:
+                              format: date-time
+                              type: string
+                        reaction:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              workspaceUserInfoId:
+                                type: string
+                              displayName:
+                                type: string
+                              profileUrl:
+                                type: string
+                              emotion:
+                                type: string
+                              createdAt:
+                                format: date-time
+                                type: string
+                        channel:
+                          type: object
+                          properties:
+                            channelId:
+                              type: string
+                            channelType:
+                              type: number
+                            channelName:
+                              type: string
+                        actionType:
+                          type: number
+
+          description: get user mention and reaction
+
+  '/api/chat/{workspaceId}/{channelId}':
+    summary: get chat messages
+    description: get chat messages
+    get:
+      tags:
+        - chat
+      operationId: ''
+      parameters:
+        - name: channelId
+          in: path
+          description: channelId
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          description: 날짜 이후의 message get
+          schema:
+            type: string
+        - name: currentCursor
+          in: query
+          description: 마지막 chat의 createAt 날짜보다 이전 message get
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        pinned:
+                          type: string
+                        contents:
+                          type: string
+                        channel:
+                          type: string
+                        creator:
+                          type: string
+                        parentId:
+                          type: string
+                        isDelete:
+                          type: boolean
+                        createdAt:
+                          format: date-time
+                          type: string
+                        updatedAt:
+                          format: date-time
+                          type: string
+                        reply:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              _id:
+                                type: string
+                              creator:
+                                type: string
+                              createdAt:
+                                format: date-time
+                                type: string
+                              userInfo:
+                                type: object
+                                properties:
+                                  _id:
+                                    type: string
+                                  displayName:
+                                    type: string
+                                  profileUrl:
+                                    type: string
+                        userInfo:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            displayName:
+                              type: string
+                            profileUrl:
+                              type: string
+                        reactions:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              emotion:
+                                type: string
+                              users:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    _id:
+                                      type: string
+                                    displayName:
+                                      type: string
+                                    profileUrl:
+                                      type: string
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: unauthorized
+        default:
+          description: Default error sample response
+
+  /api/channel/browser:
+    summary: get channel list in workspace
+    description: get channel list in workspace
+    get:
+      tags:
+        - channel
+      summary: get channel list in workspace
+      description: get channel list in workspace
+      operationId: ''
+      parameters:
+        - name: workspaceId
+          in: query
+          description: workspaceId
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: workspaceUserInfoId
+          in: query
+          description: workspaceUserInfoId
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        title:
+                          type: string
+                        channelType:
+                          type: integer
+                        joined:
+                          type: boolean
+          description: success response
+
+  '/api/channel/leave':
+    summary: leave channel
+    description: leave channel
+    post:
+      tags:
+        - channel
+      operationId: ''
+      parameters:
+        - name: workspaceId
+          in: query
+          description: workspaceId
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: workspaceUserInfoId
+          in: query
+          description: workspaceUserInfoId
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: unauthorized
+        default:
+          description: Default error sample response
+
+  '/api/channel/join':
+    summary: join channel
+    description: join channel
+    post:
+      tags:
+        - channel
+      operationId: ''
+      parameters:
+        - name: workspaceId
+          in: query
+          description: workspaceId
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: workspaceUserInfoId
+          in: query
+          description: workspaceUserInfoId
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: unauthorized
+        default:
+          description: Default error sample response
+
+  '/api/chat/{workspaceId}/{channelId}/reply':
+    summary: get chat messages
+    description: get chat messages
+    get:
+      tags:
+        - chat
+      operationId: ''
+      parameters:
+        - name: workspaceId
+          in: path
+          description: workspaceId
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: channelId
+          in: path
+          description: channelId
+          required: true
+          explode: true
+          schema:
+            type: string
+        - name: parentId
+          in: query
+          description: parent chat Id
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        isDelete:
+                          type: boolean
+                        contents:
+                          type: string
+                        createdAt:
+                          format: date-time
+                          type: string
+                        updatedAt:
+                          format: date-time
+                          type: string
+                        userInfo:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            displayName:
+                              type: string
+                            profileUrl:
+                              type: string
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: unauthorized
+        default:
+          description: Default error sample response
+
+  '/api/file':
+    summary: file upload
+    description: file upload
+    post:
+      tags:
+        - file
+      operationId: ''
+      parameters:
+        - name: file
+          in: query
+          description: input form으로 생성된 file object
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      originalName:
+                        type: string
+                      fileType:
+                        type: string
+                      creator:
+                        type: string
+                      url:
+                        type: string
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: unauthorized
+        default:
+          description: Default error sample response
+    delete:
+      tags:
+        - file
+      operationId: ''
+      parameters:
+        - name: name
+          in: query
+          description: file name
+          required: true
+          explode: true
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+          description: success response
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: not modified
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+          description: unauthorized
+        default:
+          description: Default error sample response
+
+components:
+  schemas:
+    workspaceUserInfo:
+      type: 'object'
+      properties:
+        _id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        fullName:
+          type: string
+        displayName:
+          type: string
+        pause:
+          type: string
+        phoneNumber:
+          type: integer
+        timeZone:
+          type: string
+        profileUrl:
+          type: string
+        status:
+          type: string
+        expireStatus:
+          type: string
+          format: date-time
+        isAdmin:
+          type: boolean
+        isActive:
+          type: boolean
+        userId:
+          type: string
+        workspaceId:
+          type: string
+
+    workspace:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        creator:
+          type: string
+        profileUrl:
+          type: string
+
+    user:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        OAuthId:
+          type: string
+        fullName:
+          type: string
+        isDeleted:
+          type: boolean
+
+    channelConfig:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        workspaceUserInfoId:
+          type: string
+        channelId:
+          type: string
+        readChatId:
+          type: string
+        isMute:
+          type: string
+        norification:
+          type: string
+        sectionId:
+          type: string
+
+    follow:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        workspaceUserInfoId:
+          type: string
+        chatId:
+          type: string
+
+    section:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        workspaceUserInfoId:
+          type: string
+
+    channel:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        creator:
+          type: string
+        topic:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        channelType:
+          type: number
+        isDelete:
+          type: boolean
+
+    chat:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        pinned:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        editedAt:
+          type: string
+          format: date-time
+        contents:
+          type: string
+        channel:
+          type: string
+        creator:
+          type: string
+        parentId:
+          type: string
+        isDelete:
+          type: boolean
+
+    file:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        path:
+          type: string
+        fileType:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        creator:
+          type: string
+
+    reaction:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        emotion:
+          type: string
+        workspaceUserInfoId:
+          type: string
+        chatId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    userHistory:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        workspaceId:
+          type: string
+        path:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
