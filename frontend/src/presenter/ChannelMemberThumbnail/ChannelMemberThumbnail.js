@@ -1,8 +1,7 @@
-import { faFilter } from '@fortawesome/free-solid-svg-icons'
 import React from 'react'
 import styled from 'styled-components'
 import { COLOR } from '../../constant/style'
-
+import Image from '../../components/atom/Image'
 function ChannelMemberThumbnail(props) {
   const { member, memberNum } = props
 
@@ -10,7 +9,13 @@ function ChannelMemberThumbnail(props) {
     .map((user, index) => {
       if (user === null) return
       if (index > 2) return
-      return <Thumbnail key={index} src={user.profileUrl} index={3 - index} />
+      return (
+        <Image
+          key={index}
+          src={user.profileUrl}
+          customStyle={{ ...customImageStyle, zIndex: 3 - index }}
+        />
+      )
     })
     .filter(val => val)
 
@@ -20,6 +25,14 @@ function ChannelMemberThumbnail(props) {
       <MemberCountArea>{memberNum}</MemberCountArea>
     </MemberInfoArea>
   )
+}
+
+const customImageStyle = {
+  width: '25px',
+  height: '25px',
+  border: `1px solid ${COLOR.BACKGROUND_CONTENTS}`,
+  borderRadius: '4px',
+  margin: '0 -5px 0 0',
 }
 
 const MemberInfoArea = styled.div`
@@ -33,19 +46,9 @@ const MemberInfoArea = styled.div`
     background: rgba(155, 155, 155, 0.2);
   }
 `
-
 const ImagesArea = styled.div`
   display: flex;
   flex-direction: row;
-`
-
-const Thumbnail = styled.img`
-  width: 25px;
-  height: 25px;
-  border: 1px solid ${COLOR.BACKGROUND_CONTENTS};
-  border-radius: 4px;
-  margin-right: -5px;
-  z-index: ${({ index }) => index};
 `
 
 const MemberCountArea = styled.div`

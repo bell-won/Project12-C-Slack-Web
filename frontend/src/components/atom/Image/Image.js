@@ -16,11 +16,14 @@ const Image = ({ onClick, src, alt, title, customStyle = {} }) => {
 const StyledImage = styled.img`
   width: ${({ customStyle }) => customStyle.width};
   height: ${({ customStyle }) => customStyle.height};
+  border: ${({ customStyle }) => customStyle.border};
   border-radius: ${({ customStyle }) => customStyle.borderRadius};
   display: ${({ customStyle }) => customStyle.display};
   position: ${({ customStyle }) => customStyle.position};
   left: ${({ customStyle }) => customStyle.left};
   top: ${({ customStyle }) => customStyle.top};
+  margin: ${({ customStyle }) => customStyle.margin};
+  z-index: ${({ customStyle }) => customStyle.zIndex};
   cursor: ${({ customStyle }) => customStyle.cursor};
 `
 export default Image
