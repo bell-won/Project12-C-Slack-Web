@@ -24,5 +24,7 @@ WhiteButton.args = {
 
 export const IconButton = Template.bind({})
 IconButton.args = {
-  children: <Icon icon={CLOSE} size="10px" color={COLOR.RED} />,
+  children: (
+    <Icon icon={CLOSE} customStyle={{ fontSize: '10px', color: COLOR.RED }} />
+  ),
 }

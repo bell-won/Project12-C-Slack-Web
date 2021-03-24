@@ -1,6 +1,6 @@
 import React from 'react'
 import Icon from './Icon'
-import { CLOSE, HASHTAG } from '../../constant/icon'
+import { CLOSE, HASHTAG } from '../../../constant/icon'
 
 export default {
   title: 'Atom/Icon',
@@ -17,5 +17,7 @@ Lock.args = {
 export const Close = Template.bind({})
 Close.args = {
   icon: CLOSE,
-  size: '4px;',
+  customStyle: {
+    fontSize: '4px;',
+  },
 }
