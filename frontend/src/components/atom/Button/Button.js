@@ -63,9 +63,10 @@ const StyledButton = styled(defaultButton)`
       disabled
         ? 'cursor: default;'
         : `
-        background-color:${customStyle.hoverBackgroundColor};
-        border: ${customStyle.hoverBorder};
-        box-shadow: ${customStyle.hoverBoxShadow};
+        background-color:${customStyle.hoverBackgroundColor || ''};
+        border: ${customStyle.hoverBorder || ''};
+        box-shadow: ${customStyle.hoverBoxShadow || ''};
+        color: ${customStyle.hoverColor || ''};
         `};
   }
   &:active {
