@@ -2,16 +2,10 @@ import React from 'react'
 import styled from 'styled-components'
 import { COLOR } from '../../../constant/style'
 
-const Button = ({
-  handleClick,
-  children,
-  disabled = false,
-  onClick,
-  customStyle = {},
-}) => {
+const Button = ({ children, disabled = false, onClick, customStyle = {} }) => {
   return (
     <StyledButton
-      onClick={handleClick || onClick}
+      onClick={onClick}
       customStyle={customStyle}
       disabled={disabled}
     >
@@ -40,39 +34,34 @@ const defaultButton = styled.button`
     }}
   }
 `
-
-const StyledButton = styled(defaultButton)`
-  display: ${({ customStyle }) => customStyle.display};
-  justify-content: ${({ customStyle }) => customStyle.justifyContent};
-  align-items: ${({ customStyle }) => customStyle.alignItems};
-  height: ${({ customStyle }) => customStyle.height};
-  width: ${({ customStyle }) => customStyle.width};
-  padding: ${({ customStyle }) => customStyle.padding};
-  border: ${({ customStyle }) => customStyle.border};
-  border-style: ${({ customStyle }) => customStyle.borderStyle};
-  border-radius: ${({ customStyle }) => customStyle.borderRadius || '4px'};
-  color: ${({ customStyle, disabled }) =>
-    disabled ? COLOR.GRAY : customStyle.color};
-  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
-  background-color: ${({ customStyle, disabled }) =>
-    disabled ? COLOR.LIGHT_GRAY : customStyle.backgroundColor};
-  font-weight: ${({ customStyle }) => customStyle.fontWeight};
-  font-size: ${({ customStyle }) => customStyle.fontSize};
-  &:hover {
-    ${({ customStyle, disabled }) =>
-      disabled
-        ? 'cursor: default;'
-        : `
-        background-color:${customStyle.hoverBackgroundColor || ''};
-        border: ${customStyle.hoverBorder || ''};
-        box-shadow: ${customStyle.hoverBoxShadow || ''};
-        color: ${customStyle.hoverColor || ''};
-        `};
-  }
-  &:active {
-    background-color: ${({ customStyle }) => customStyle.activeBackgroundColor};
-  }
-`
+const StyledButton = styled(defaultButton)(({ customStyle, disabled }) => ({
+  display: customStyle.display,
+  justifyContent: customStyle.justifyContent,
+  alignItems: customStyle.alignItems,
+  height: customStyle.height,
+  width: customStyle.width,
+  padding: customStyle.padding,
+  margin: customStyle.margin,
+  border: customStyle.border,
+  borderStyle: customStyle.borderStyle,
+  borderRadius: customStyle.borderRadius || '4px',
+  color: disabled ? COLOR.GRAY : customStyle.color,
+  cursor: disabled ? 'default' : 'pointer',
+  backgroundColor: disabled ? COLOR.LIGHT_GRAY : customStyle.backgroundColor,
+  fontWeight: customStyle.fontWeight,
+  fontSize: customStyle.fontSize,
+  '&:hover': disabled
+    ? { cursor: 'default' }
+    : {
+        backgroundColor: customStyle.hoverBackgroundColor,
+        border: customStyle.hoverBorder,
+        boxShadow: customStyle.hoverBoxShadow,
+        color: customStyle.hoverColor,
+      },
+  '&:active': {
+    backgroundColor: customStyle.activeBackgroundColor,
+  },
+}))
 
 export const whiteButtonStyle = {
   color: 'GRAY',

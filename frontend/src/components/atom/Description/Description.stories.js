@@ -10,8 +10,7 @@ const Template = args => <Description {...args} />
 
 export const DefaultDescription = Template.bind({})
 DefaultDescription.args = {
-  fontSize: '14px',
   children: 'this is description',
-  marginBottom: '28px',
-  marginLeft: '8px',
+  margin: '0 0 28px 8px',
+  fontSize: '14px',
 }

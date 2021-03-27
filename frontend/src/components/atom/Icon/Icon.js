@@ -8,12 +8,11 @@ const Icon = ({ icon, customStyle = {} }) => {
     </StyledIcon>
   )
 }
-const StyledIcon = styled.i`
-  display: ${({ customStyle }) => customStyle.display};
-  transform: ${({ customStyle }) => customStyle.transform};
-  font-size: ${({ customStyle }) =>
-    customStyle.fontSize ? customStyle.fontSize : '1rem'};
-  padding: ${({ customStyle }) => customStyle.padding};
-  margin: ${({ customStyle }) => customStyle.margin};
-`
+const StyledIcon = styled.i(({ customStyle }) => ({
+  display: customStyle.display,
+  transform: customStyle.transform,
+  fontSize: customStyle.fontSize ? customStyle.fontSize : '1rem',
+  padding: customStyle.padding,
+  margin: customStyle.margin,
+}))
 export default Icon
