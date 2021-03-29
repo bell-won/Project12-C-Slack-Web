@@ -45,6 +45,7 @@ const StyledButton = styled(defaultButton)(({ customStyle, disabled }) => ({
   border: customStyle.border,
   borderStyle: customStyle.borderStyle,
   borderRadius: customStyle.borderRadius || '4px',
+  boxSizing: customStyle.boxSizing,
   color: disabled ? COLOR.GRAY : customStyle.color,
   cursor: disabled ? 'default' : 'pointer',
   backgroundColor: disabled ? COLOR.LIGHT_GRAY : customStyle.backgroundColor,

@@ -10,6 +10,7 @@ const Icon = ({ icon, customStyle = {} }) => {
 }
 const StyledIcon = styled.i(({ customStyle }) => ({
   display: customStyle.display,
+  width: customStyle.width,
   transform: customStyle.transform,
   fontSize: customStyle.fontSize ? customStyle.fontSize : '1rem',
   padding: customStyle.padding,
