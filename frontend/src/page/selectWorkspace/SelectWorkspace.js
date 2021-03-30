@@ -1,18 +1,16 @@
 import React from 'react'
 import styled from 'styled-components'
-import NewWorkspaceSection from '../../presenter/NewWorkspaceSection'
-import MyWorkspaceSection from '../../container/MyWorkspaceSection'
+import NewWorkspaceSection from '../../components/organism/NewWorkspaceSection'
+import MyWorkspaceSection from '../../components/organism/MyWorkspaceSection'
 
 const SelectWorkspace = () => {
   return (
-    <>
-      <StyledMain>
-        <MainSection>
-          <MyWorkspaceSection />
-          <NewWorkspaceSection />
-        </MainSection>
-      </StyledMain>
-    </>
+    <StyledMain>
+      <MainSection>
+        <MyWorkspaceSection />
+        <NewWorkspaceSection />
+      </MainSection>
+    </StyledMain>
   )
 }
 

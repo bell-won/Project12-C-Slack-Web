@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { useParams, Route } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 import { modalRecoil } from '../../store'
 
-import ChannelList from '../../container/ChannelList'
-import ChannelListHeader from '../../presenter/ChannelListHeader'
-import ChatRoom from '../../container/ChatRoom'
-import SideThreadBar from '../../container/SideThreadBar'
+import SideBar from '../../components/organism/SideBar'
+import ChatRoom from '../../components/organism/ChatRoom'
+import ThreadSideBar from '../../components/organism/ThreadSideBar'
 import { COLOR } from '../../constant/style'
-import Icon from '../../presenter/Icon'
+import Icon from '../../components/atom/Icon'
 import { TOOLS } from '../../constant/icon'
 import useWorkspace from '../../hooks/useWorkspace'
 import useSocket from '../../hooks/useSocket'
-import DraggableBoundaryLine from '../../presenter/DraggableBoundaryLine'
-import GlobalHeader from '../../container/GlobalHeader'
+import DraggableBoundaryLine from '../../components/molecule/DraggableBoundaryLine'
+import GlobalHeader from '../../components/organism/GlobalHeader'
 
 function WorkspacePage() {
   const { channelId } = useParams()
@@ -53,21 +52,13 @@ function WorkspacePage() {
       {modal}
       <GlobalHeader />
       <MainArea>
-        <ChannelListSection width={listWidth}>
-          <ChannelListHeaderArea>
-            <ChannelListHeader workspaceUserInfo={workspaceUserInfo} />
-          </ChannelListHeaderArea>
-          <ChannelListArea>
-            <ChannelList />
-          </ChannelListArea>
-        </ChannelListSection>
+        <SideBar width={listWidth} workspaceUserInfo={workspaceUserInfo} />
         <DraggableBoundaryLine setWidth={setListWidth} min="150" max="450" />
-
         <ContentsArea width={listWidth}>
           {switching()}
 
           <Route exact path={'/workspace/:workspaceId/:channelId/:chatId'}>
-            <SideThreadBar
+            <ThreadSideBar
               sidebarWidth={sidebarWidth}
               setSidebarWidth={setSidebarWidth}
             />
@@ -82,13 +73,16 @@ const ConstructionPage = () => {
   return (
     <SwitchContentsArea>
       <p>
-        <Icon icon={TOOLS} size="100px" color={COLOR.LABEL_SELECT_TEXT} />
+        <Icon icon={TOOLS} customStyle={customIconStyle} />
       </p>
       <p>준비 중인 페이지입니다.</p>
     </SwitchContentsArea>
   )
 }
-
+const customIconStyle = {
+  fontSize: '100px',
+  color: COLOR.LABEL_SELECT_TEXT,
+}
 const PageStyle = styled.div`
   height: 100%;
   display: flex;
@@ -97,42 +91,12 @@ const PageStyle = styled.div`
 
 const MainArea = styled.div`
   display: flex;
-  flex-direction: row;
   width: 100%;
   height: calc(100% - 40px);
 `
 
-const ChannelListSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: ${props => props.width}px;
-  color: ${COLOR.LABEL_DEFAULT_TEXT};
-  height: 100%;
-`
-
-const ChannelListHeaderArea = styled.div`
-  width: 100%;
-  height: 60px;
-  background: ${COLOR.BACKGROUND_CHANNEL_LIST};
-  color: ${COLOR.LABEL_DEFAULT_TEXT};
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-sizing: border-box;
-`
-
-const ChannelListArea = styled.div`
-  width: 100%;
-  height: calc(100% - 60px);
-  background: ${COLOR.BACKGROUND_CHANNEL_LIST};
-  color: ${COLOR.LABEL_DEFAULT_TEXT};
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  overflow-y: auto;
-  overflow-x: hidden;
-  font-size: 15px;
-`
-
 const ContentsArea = styled.div`
   display: flex;
-  flex-direction: row;
   width: ${props => `calc(100% - ${props.width}px)`};
   height: 100%;
 `
@@ -145,7 +109,6 @@ const SwitchContentsArea = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
   background: ${COLOR.BACKGROUND_CONTENTS};
 `
 
