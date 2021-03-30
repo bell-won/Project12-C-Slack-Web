@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory, useParams } from 'react-router'
-import request from '../../util/request'
-import styled from 'styled-components'
 import { toast } from 'react-toastify'
-
-import { COLOR } from '../../constant/style'
-import Icon from '../../presenter/Icon'
-import { workspaceRecoil } from '../../store'
-import { STAR, COLOREDSTAR } from '../../constant/icon'
 import { useRecoilValue } from 'recoil'
-import { isEmpty } from '../../util'
-import useChannelList from '../../hooks/useChannelList'
 
-function ChannelStarBtn({ channel }) {
+import Icon from '../../atom/Icon'
+import request from '../../../util/request'
+import { COLOR } from '../../../constant/style'
+import { workspaceRecoil } from '../../../store'
+import { STAR, COLOREDSTAR } from '../../../constant/icon'
+import { isEmpty } from '../../../util'
+import useChannelList from '../../../hooks/useChannelList'
+
+function ChannelStarButton({ channel }) {
   const section = channel.sectionName
   const { channelId } = useParams()
   const [, setChannels] = useChannelList()
@@ -48,26 +47,21 @@ function ChannelStarBtn({ channel }) {
     }
   }
 
-  return (
-    <StarIconStyle onClick={updateSection}>
-      {!isEmpty(sectionInfo) ? (
-        <Icon icon={COLOREDSTAR} color={COLOR.STARBLUE} size="12px" />
-      ) : (
-        <Icon icon={STAR} color={COLOR.STARBLUE} size="12px" />
-      )}
-    </StarIconStyle>
+  return !isEmpty(sectionInfo) ? (
+    <Icon
+      icon={COLOREDSTAR}
+      customStyle={customIconStyle}
+      onClick={updateSection}
+    />
+  ) : (
+    <Icon icon={STAR} customStyle={customIconStyle} onClick={updateSection} />
   )
 }
+const customIconStyle = {
+  color: COLOR.STARBLUE,
+  fontSize: '12px',
+  margin: '5px',
+  cursor: 'pointer',
+}
 
-const StarIconStyle = styled.div`
-  height: 12px;
-  width: auto;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  margin-left: 5px;
-  cursor: pointer;
-`
-
-export default ChannelStarBtn
+export default ChannelStarButton

@@ -1,11 +1,11 @@
 import React from 'react'
 
-import ChannelStarBtn from './ChannelStarBtn'
+import ChannelStarButton from './ChannelStarButton'
 import { MemoryRouter, Route } from 'react-router-dom'
 
 export default {
-  title: 'Channel/ChannelStarBtn',
-  component: ChannelStarBtn,
+  title: 'Channel/ChannelStarButton',
+  component: ChannelStarButton,
 }
 const Template = args => (
   <MemoryRouter
@@ -14,7 +14,7 @@ const Template = args => (
     ]}
   >
     <Route path="workspace/:workspaceId/:channelId">
-      <ChannelStarBtn {...args} />
+      <ChannelStarButton {...args} />
     </Route>
   </MemoryRouter>
 )

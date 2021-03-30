@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
-import { COLOR } from '../../constant/style'
+import { COLOR } from '../../../constant/style'
 
-function ChannelTopicBtn({ topic }) {
+function ChannelTopicButton({ topic }) {
   return topic ? (
     <TopicArea>
       <Topic>{topic}</Topic>
@@ -53,4 +53,4 @@ const TopicArea = styled.div`
   }
 `
 
-export default ChannelTopicBtn
+export default ChannelTopicButton

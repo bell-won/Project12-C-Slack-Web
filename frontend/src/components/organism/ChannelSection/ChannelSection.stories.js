@@ -1,15 +1,15 @@
 import React from 'react'
 import styled from 'styled-components'
-import SectionLabel from './SectionLabel'
+import ChannelSection from './ChannelSection'
 
 export default {
-  title: 'Channel/SectionLabel',
-  component: SectionLabel,
+  title: 'Channel/ChannelSection',
+  component: ChannelSection,
 }
 
 const Template = args => (
   <Background>
-    <SectionLabel {...args} />
+    <ChannelSection {...args} />
   </Background>
 )
 

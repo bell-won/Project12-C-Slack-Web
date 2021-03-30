@@ -1,23 +1,30 @@
 import React, { useState } from 'react'
 import { useParams } from 'react-router'
-import styled, { keyframes, css } from 'styled-components'
-import Icon from '../../presenter/Icon'
-import { ELLIPSISV, PLUS } from '../../constant/icon'
-import { Link } from 'react-router-dom'
-import { COLOR, SIZE } from '../../constant/style'
-import ChannelCard from '../../presenter/ChannelCard'
-import DirectMessageCard from '../../presenter/DirectMessageCard'
-import AddButton from '../../presenter/Button/AddButton'
-import { modalRecoil } from '../../store'
 import { useSetRecoilState } from 'recoil'
+import styled, { keyframes, css } from 'styled-components'
+import { Link } from 'react-router-dom'
+import Icon from '../../atom/Icon'
+import Button from '../../atom/Button'
+import ChannelCard from '../../molecule/ChannelCard'
+import DirectMessageCard from '../../molecule/DirectMessageCard'
 import InviteWorkspaceModal from '../Modal/InviteWorkspaceModal'
 import CreateChannelModal from '../Modal/CreateChannelModal/CreateChannelModal'
 import ChannelBrowserModal from '../Modal/ChannelBrowserModal'
 import InviteUserToChannelModal from '../Modal/InviteUserToChannelModal'
+import {
+  ELLIPSISV,
+  PLUS,
+  LOCK,
+  HASHTAG,
+  PLUSSQURE,
+} from '../../../constant/icon'
+import { COLOR } from '../../../constant/style'
+import { modalRecoil } from '../../../store'
 
-function SectionLabel(props) {
+const DM_SECTION = 'Direct messages'
+const CHANNEL_SECTION = 'Channels'
+function SectionLabel({ sectionName, channelList = [] }) {
   const [isOpen, setIsOpen] = useState(true)
-  const { sectionName, lists } = props
   const { channelId, workspaceId } = useParams()
   const setModal = useSetRecoilState(modalRecoil)
   const openSection = () => {
@@ -35,38 +42,6 @@ function SectionLabel(props) {
     )
   }
 
-  const renderChannelCards =
-    lists.length !== 0 ? (
-      lists.map((list, idx) => {
-        return (
-          <LinkStyle
-            key={idx}
-            to={`/workspace/${workspaceId}/${list.channelId._id}`}
-          >
-            <ChannelLabel
-              curr={list.channelId._id === channelId}
-              isOpen={isOpen}
-            >
-              {list.channelId.channelType === 2 ? (
-                <DirectMessageCard directMessage={list.channelId} />
-              ) : (
-                <ChannelCard
-                  channel={list.channelId}
-                  color={
-                    list.channelId._id === channelId
-                      ? 'white'
-                      : COLOR.LABEL_DEFAULT_TEXT
-                  }
-                />
-              )}
-            </ChannelLabel>
-          </LinkStyle>
-        )
-      })
-    ) : (
-      <div></div>
-    )
-
   const openCreateChannelModal = () => {
     setModal(<CreateChannelModal handleClose={() => setModal(null)} />)
   }
@@ -80,22 +55,34 @@ function SectionLabel(props) {
     setModal(<ChannelBrowserModal handleClose={() => setModal(null)} />)
   }
 
-  const addButtons =
-    sectionName === 'Direct messages' ? (
-      <AddButton
-        isOpen={isOpen}
-        title="Add teammates"
-        onClick={openInviteWorkspaceModal}
-      />
-    ) : sectionName === 'Channels' ? (
-      <AddButton
-        isOpen={isOpen}
-        title="Add channels"
-        onClick={openCreateChannelModal}
-      />
-    ) : (
-      <div></div>
-    )
+  const getInviteModalButton = () => {
+    if (sectionName === DM_SECTION)
+      return (
+        <Button
+          customStyle={customButtonStyle}
+          onClick={openInviteWorkspaceModal}
+        >
+          <ChannelCard
+            icon={PLUSSQURE}
+            title="Add teammates"
+            color={COLOR.LABEL_DEFAULT_TEXT}
+          />
+        </Button>
+      )
+    if (sectionName === CHANNEL_SECTION)
+      return (
+        <Button
+          customStyle={customButtonStyle}
+          onClick={openCreateChannelModal}
+        >
+          <ChannelCard
+            icon={PLUSSQURE}
+            title="Add channels"
+            color={COLOR.LABEL_DEFAULT_TEXT}
+          />
+        </Button>
+      )
+  }
 
   return (
     <SectionLabelStyle>
@@ -107,39 +94,59 @@ function SectionLabel(props) {
           <SectionName>{sectionName}</SectionName>
           <ButtonArea>
             <ChannelSectionBtn onClick={openChannelsMenu}>
-              <Icon
-                icon={ELLIPSISV}
-                color={COLOR.LABEL_DEFAULT_TEXT}
-                size={SIZE.ICON_SIZE + 'px'}
-              />
+              <Icon icon={ELLIPSISV} customStyle={customIconStyle} />
             </ChannelSectionBtn>
-            {sectionName === 'Channels' && (
+            {sectionName === CHANNEL_SECTION && (
               <ChannelSectionBtn onClick={openChannelBrowserModal}>
-                <Icon
-                  icon={PLUS}
-                  color={COLOR.LABEL_DEFAULT_TEXT}
-                  size={SIZE.ICON_SIZE + 'px'}
-                />
+                <Icon icon={PLUS} customStyle={customIconStyle} />
               </ChannelSectionBtn>
             )}
-            {sectionName === 'Direct messages' && (
+            {sectionName === DM_SECTION && (
               <ChannelSectionBtn onClick={openAddUserModal}>
-                <Icon
-                  icon={PLUS}
-                  color={COLOR.LABEL_DEFAULT_TEXT}
-                  size={SIZE.ICON_SIZE + 'px'}
-                />
+                <Icon icon={PLUS} customStyle={customIconStyle} />
               </ChannelSectionBtn>
             )}
           </ButtonArea>
         </SectionTitle>
       </TitleArea>
       <ListArea isOpen={isOpen}>
-        {renderChannelCards}
-        {addButtons}
+        {channelList.map(
+          ({ channelId: { _id, channelType, title, member } }, idx) => (
+            <LinkStyle key={idx} to={`/workspace/${workspaceId}/${_id}`}>
+              <ChannelLabel curr={_id === channelId} isOpen={isOpen}>
+                {channelType === 2 ? (
+                  <DirectMessageCard
+                    directMessage={{ _id, channelType, title, member }}
+                  />
+                ) : (
+                  <ChannelCard
+                    icon={channelType === 0 ? LOCK : HASHTAG}
+                    title={title}
+                    color={
+                      _id === channelId ? 'white' : COLOR.LABEL_DEFAULT_TEXT
+                    }
+                  />
+                )}
+              </ChannelLabel>
+            </LinkStyle>
+          ),
+        )}
+        {isOpen && getInviteModalButton()}
       </ListArea>
     </SectionLabelStyle>
   )
+}
+const customIconStyle = {
+  color: COLOR.LABEL_DEFAULT_TEXT,
+  fontSize: '13px',
+}
+const customButtonStyle = {
+  padding: '3px 10px 3px 30px',
+  hoverBackgroundColor: COLOR.LABEL_HOVER_BACKGROUND,
+  color: COLOR.LABEL_DEFAULT_TEXT,
+  backgroundColor: 'transparent',
+  borderRadius: 'initial',
+  fontWeight: 'initial',
 }
 
 const ChannelLabel = styled.div`
@@ -195,8 +202,8 @@ const TriangleIcon = styled.div`
   height: 18px;
   text-align: center;
   transform: rotate(90deg);
-  ${props =>
-    props.isOpen
+  ${({ isOpen }) =>
+    isOpen
       ? css`
           animation: 0.1s linear ${openSection};
           animation-direction: alternate;
