@@ -9,10 +9,10 @@ Lazy.map = curry(function* (action, iterator) {
   for (const value of iterator) yield action(value)
 })
 
-Lazy.range = curry(function* (max) {
+Lazy.range = function* (max) {
   let i = 0
   while (i < max) yield i++
-})
+}
 
 Lazy.filter = curry(function* (action, iterator) {
   for (const value of iterator) if (action(value)) yield value
