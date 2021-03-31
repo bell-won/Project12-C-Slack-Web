@@ -12,7 +12,7 @@ const UserActiveCircle = styled.div`
   background: ${({ isActive }) => (isActive ? COLOR.USER_ACTIVE : 'white')};
   border: 1px solid black;
   border-radius: 5px;
-  /* position: ${({ position }) => position}; */
+  position: ${({ position }) => position};
   right: ${({ right }) => right};
   bottom: ${bottom => bottom};
 `
