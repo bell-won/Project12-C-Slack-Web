@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import LoginButton from '../../presenter/LoginButton/LoginButton'
 import { GITHUB } from '../../constant/icon'
-import Icon from '../../presenter/Icon'
+import Icon from '../../components/atom/Icon'
 import styled from 'styled-components'
-import SlackIcon from '../../presenter/SlackImage'
+import Image from '../../components/atom/Image'
 import { isEmpty } from '../../util'
 import QueryString from 'qs'
+import Description from '../../components/atom/Description'
+import Button from '../../components/atom/Button'
+import { COLOR } from '../../constant/style'
 
 const baseURL =
   process.env.NODE_ENV === 'development'
@@ -15,7 +17,6 @@ const baseURL =
 
 const LoginPage = props => {
   const history = useHistory()
-  const githubIcon = <Icon icon={GITHUB} size="1.6rem" />
   const query = QueryString.parse(props.location.search, {
     ignoreQueryPrefix: true,
   })
@@ -31,21 +32,56 @@ const LoginPage = props => {
   return (
     <>
       <LoginHeader>
-        <SlackIcon onClick={gohomeHandle} />
+        <Image
+          alt="Slack"
+          src="https://a.slack-edge.com/bv1-8/slack_logo-ebd02d1.svg"
+          title="Slack"
+          customStyle={customImageStyle}
+          onClick={gohomeHandle}
+        />
       </LoginHeader>
       <CenterDiv>
-        <MainDescription>Slack에 로그인</MainDescription>
+        <Description customStyle={customDescriptionStyle}>
+          Slack에 로그인
+        </Description>
         <Description>사용하려는 github 계정으로 계속해 주세요.</Description>
         <LoginDiv>
           <form method="GET" action={baseURL + '/api/user/sign-in/github'}>
-            <LoginButton icon={githubIcon} label={'Login With github'} />
+            <Button customStyle={customButtonStyle}>
+              <Icon icon={GITHUB} customStyle={customIconStyle} />
+              Login With github
+            </Button>
           </form>
         </LoginDiv>
       </CenterDiv>
     </>
   )
 }
-
+const customIconStyle = {
+  fontSize: '1.6rem',
+  padding: '0 10px 0 0',
+}
+const customDescriptionStyle = {
+  fontSize: '36px',
+  fontWeight: 700,
+}
+const customImageStyle = {
+  height: '34px',
+}
+const customButtonStyle = {
+  display: 'flex',
+  width: '20rem',
+  color: 'black',
+  height: '2.5rem',
+  border: '1px solid #1da1f2',
+  borderRadius: '4px',
+  backgroundColor: 'white',
+  justifyContent: 'center',
+  alignItems: 'center',
+  fontWeight: 'initial',
+  hoverBackgroundColor: COLOR.HOVER_GRAY,
+  activeBackgroundColor: COLOR.ACTIVE_GRAY,
+}
 const LoginHeader = styled.header`
   display: flex;
   flex-direction: column;
@@ -59,20 +95,6 @@ const CenterDiv = styled.div`
   flex-direction: column;
   width: 100%;
   align-items: center;
-`
-
-const MainDescription = styled.h1`
-  color: #1d1c1d;
-  font-weight: 700;
-  font-size: 48px;
-  line-height: 46px;
-  text-align: center;
-  margin-bottom: 10px;
-`
-
-const Description = styled.p`
-  color: #454245;
-  margin-bottom: 36px;
 `
 
 const LoginDiv = styled.div`

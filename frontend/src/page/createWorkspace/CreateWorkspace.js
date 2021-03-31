@@ -1,27 +1,25 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import CreateWorkspacecName from '../../container/CreateWorkspaceName'
-import CreateWorkspaceInitChannel from '../../container/CreateWorkspaceInitChannel'
+import CreateWorkspacecName from '../../components/organism/CreateWorkspaceName'
+import CreateWorkspaceInitChannel from '../../components/organism/CreateWorkspaceInitChannel'
 
 const CreateWorkspace = () => {
   const [workspaceName, setWorkspaceName] = useState('')
   const [isInputName, setIsInputName] = useState(false)
   return (
-    <>
-      <StyledMain>
-        <MainSection>
-          {!isInputName ? (
-            <CreateWorkspacecName
-              workspaceName={workspaceName}
-              setWorkspaceName={setWorkspaceName}
-              setIsInputName={setIsInputName}
-            />
-          ) : (
-            <CreateWorkspaceInitChannel workspaceName={workspaceName} />
-          )}
-        </MainSection>
-      </StyledMain>
-    </>
+    <StyledMain>
+      <MainSection>
+        {!isInputName ? (
+          <CreateWorkspacecName
+            workspaceName={workspaceName}
+            setWorkspaceName={setWorkspaceName}
+            setIsInputName={setIsInputName}
+          />
+        ) : (
+          <CreateWorkspaceInitChannel workspaceName={workspaceName} />
+        )}
+      </MainSection>
+    </StyledMain>
   )
 }
 
