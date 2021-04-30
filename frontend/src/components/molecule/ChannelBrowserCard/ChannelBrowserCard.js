@@ -4,9 +4,9 @@ import Button from '../../atom/Button'
 import Description from '../../atom/Description'
 import { useHistory, useParams } from 'react-router'
 import { leaveChannel, joinChannel } from '../../../api/channel'
-import useChannelList from '../../../hooks/useChannelList'
-import useWorkspace from '../../../hooks/useWorkspace'
+import { workspaceRecoil, useSetChannels } from '../../../store'
 import { COLOR } from '../../../constant/style'
+import { useRecoilValue } from 'recoil'
 
 function ChannelBrowserCard({
   _id,
@@ -17,10 +17,9 @@ function ChannelBrowserCard({
   workspaceUserInfoId,
 }) {
   const { workspaceId, channelId } = useParams()
-  const [, setChannels] = useChannelList()
-  const [workspaceUserInfo] = useWorkspace()
+  const setChannels = useSetChannels()
+  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
   const history = useHistory()
-
   const defaultChannel = workspaceUserInfo.workspaceInfo.default_channel
 
   const clickEvent = async () => {
@@ -38,7 +37,6 @@ function ChannelBrowserCard({
         channelId: _id,
       })
     }
-
     setChannels()
     handleClose()
   }

@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import ChannelSection from '../ChannelSection'
 import StaticSideMenuCard from '../../molecule/StaticSideMenuCard'
 import Icon from '../../atom/Icon'
 import Button, { whiteButtonStyle } from '../../atom/Button'
-import useChannelList from '../../../hooks/useChannelList'
-import { isEmpty } from '../../../util'
+import { workspaceRecoil, sectionRecoil } from '../../../store'
 import { COLOR } from '../../../constant/style'
 import {
   EDIT,
@@ -16,28 +15,11 @@ import {
   AT,
   BOOKMARK,
 } from '../../../constant/icon'
+import { useRecoilValue } from 'recoil'
 
-const DM_TYPE = 2
-const DM_SECTION_NAME = 'Direct messages'
-const DEFAULT_SECTION_NAME = 'Channels'
-
-function SideBar({ workspaceUserInfo, width }) {
-  const [sections, setSections] = useState([])
-  const [channels] = useChannelList()
-
-  useEffect(() => {
-    if (!isEmpty(channels)) {
-      setSections(
-        Object.entries(
-          channels.reduce(classifySections, {
-            [DM_SECTION_NAME]: [],
-            [DEFAULT_SECTION_NAME]: [],
-          }),
-        ).reverse(),
-      )
-    }
-  }, [channels])
-
+function SideBar({ width }) {
+  const sections = useRecoilValue(sectionRecoil)
+  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
   return (
     <SideBarContainer width={width}>
       {workspaceUserInfo !== null && (
@@ -77,19 +59,6 @@ function SideBar({ workspaceUserInfo, width }) {
       ))}
     </SideBarContainer>
   )
-}
-
-const classifySections = (prev, channel) => {
-  if (channel.sectionName) {
-    prev[channel.sectionName]
-      ? prev[channel.sectionName].push(channel)
-      : (prev[channel.sectionName] = [channel])
-  } else {
-    channel.channelId.channelType === DM_TYPE
-      ? prev[DM_SECTION_NAME].push(channel)
-      : prev[DEFAULT_SECTION_NAME].push(channel)
-  }
-  return prev
 }
 
 const SideBarContainer = styled.aside`

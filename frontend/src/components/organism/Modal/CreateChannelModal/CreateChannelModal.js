@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useRecoilValue } from 'recoil'
 import { useHistory, useParams } from 'react-router-dom'
 
-import { workspaceRecoil } from '../../../../store'
+import { workspaceRecoil, useSetChannels } from '../../../../store'
 import Modal from '../../../atom/Modal'
 import H, { defaultH1Style } from '../../../atom/H'
 import Icon from '../../../atom/Icon'
@@ -18,7 +18,6 @@ import {
   createChannel,
 } from '../../../../api/channel'
 import ToggleButton from '../../../atom/ToggleButton'
-import useChannelList from '../../../../hooks/useChannelList'
 
 const MAX_CHANNEL_NAME = 80
 const MAX_CHANNEL_DESCRIPTION = 250
@@ -34,7 +33,7 @@ const CreateChannelModal = ({ handleClose }) => {
   const history = useHistory()
   const { workspaceId } = useParams()
   const { _id: workspaceUserInfoId } = useRecoilValue(workspaceRecoil)
-  const [, updateChannelList] = useChannelList()
+  const setChannels = useSetChannels()
   const [isPrivate, setPrivateOption] = useState(false)
   const [channelName, setChannelName] = useState('')
   const [channelDescription, setChannelDescription] = useState('')
@@ -59,7 +58,7 @@ const CreateChannelModal = ({ handleClose }) => {
       description: channelDescription,
       workspaceId,
     })
-    updateChannelList()
+    setChannels()
     history.push(`/workspace/${workspaceId}/${channelId}`)
     handleClose()
   }
@@ -84,9 +83,11 @@ const CreateChannelModal = ({ handleClose }) => {
       setDescriptionError(MAXIMUM_DESCRIPTION_LENGH_ERROR)
     else setDescriptionError('')
   }
+
   const handlePrivateOption = () => {
     setPrivateOption(!isPrivate)
   }
+
   return (
     <Modal handleClose={handleClose}>
       <ModalForm>
