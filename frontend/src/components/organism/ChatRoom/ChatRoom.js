@@ -10,6 +10,7 @@ import {
   workspaceRecoil,
   socketRecoil,
   currentChannelInfoRecoil,
+  useSetChannels,
 } from '../../../store'
 import ChannelHeader from '../ChannelHeader'
 import { isEmpty } from '../../../util'
@@ -29,8 +30,8 @@ const ChatRoom = ({ width }) => {
   const isReading = useRef(false)
   const workspaceUserInfo = useRecoilValue(workspaceRecoil)
   const [channelInfo, setChannelInfo] = useRecoilState(currentChannelInfoRecoil)
+  const setChannels = useSetChannels()
   const { workspaceId, channelId } = useParams()
-  const params = useParams()
   const socket = useRecoilValue(socketRecoil)
   const [messages, setMessages] = useState([])
   const [previousReadMessageIndex, setPreviousReadMessageIndex] = useState(0)
@@ -102,13 +103,15 @@ const ChatRoom = ({ width }) => {
 
   useEffect(() => {
     if (socket) {
+      console.log('object')
+      const workspaceUserInfoId = workspaceUserInfo._id
       socket.on(SOCKET_EVENT.NEW_MESSAGE, ({ message }) => {
         if (message.channelId === channelId) {
           setMessages(messages => [
             ...messages,
             ...hasMyReaction([message], workspaceUserInfo),
           ])
-          if (message.userInfo._id === workspaceUserInfo._id) {
+          if (message.userInfo._id === workspaceUserInfoId) {
             setHasUnreadMessage(false)
             scrollTo()
           } else if (!isReading.current && !document.hasFocus()) {
@@ -122,7 +125,7 @@ const ChatRoom = ({ width }) => {
           })
         }
 
-        if (message.userInfo._id === workspaceUserInfo._id) scrollTo()
+        if (message.userInfo._id === workspaceUserInfoId) scrollTo()
       })
       socket.on(SOCKET_EVENT.NEW_REPLY, ({ message }) => {
         setMessages(messages =>
@@ -138,15 +141,27 @@ const ChatRoom = ({ width }) => {
           chageReactionState(messages, reaction, workspaceUserInfo),
         )
       })
+      socket.on(
+        SOCKET_EVENT.INVITED_CHANNEL,
+        ({ channelId: invitedChannelId, newMember }) => {
+          if (channelId === invitedChannelId)
+            updateChannelInfo({
+              channelId,
+              workspaceUserInfoId,
+            })
+          if (newMember.includes(workspaceUserInfoId)) setChannels()
+        },
+      )
     }
     return () => {
       if (socket) {
         socket.off(SOCKET_EVENT.NEW_REPLY)
         socket.off(SOCKET_EVENT.NEW_MESSAGE)
         socket.off(SOCKET_EVENT.UPDAETE_REACTION)
+        socket.off(SOCKET_EVENT.INVITED_CHANNEL)
       }
     }
-  }, [socket, channelId, params])
+  }, [socket, channelId, workspaceUserInfo, updateChannelInfo, setChannels])
 
   useEffect(() => {
     const handleIntersection = (entries, observer) => {
@@ -216,7 +231,7 @@ const ChatRoom = ({ width }) => {
             messages..
           </UnreadMessage>
         )}
-        <div ref={messageEndRef}></div>
+        <MessageEnd ref={messageEndRef} />
       </ChatContents>
       <MessageEditor
         sendMessage={sendMessage}
@@ -227,9 +242,11 @@ const ChatRoom = ({ width }) => {
     </ChatArea>
   )
 }
+
 const customIconStyle = {
   color: COLOR.WHITE,
 }
+
 const ChatArea = styled.div`
   display: flex;
   flex-direction: column;
@@ -271,4 +288,8 @@ const UnreadMessage = styled.div`
   font-weight: 700;
   cursor: pointer;
 `
+const MessageEnd = styled.div`
+  min-height: 1px;
+`
+
 export default ChatRoom

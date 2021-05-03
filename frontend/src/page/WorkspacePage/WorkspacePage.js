@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useParams, Route } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
-import { modalRecoil } from '../../store'
+import { modalRecoil, useInitializeAtoms } from '../../store'
 
 import SideBar from '../../components/organism/SideBar'
 import ChatRoom from '../../components/organism/ChatRoom'
@@ -10,20 +10,15 @@ import ThreadSideBar from '../../components/organism/ThreadSideBar'
 import { COLOR } from '../../constant/style'
 import Icon from '../../components/atom/Icon'
 import { TOOLS } from '../../constant/icon'
-import useWorkspace from '../../hooks/useWorkspace'
-import useSocket from '../../hooks/useSocket'
 import DraggableBoundaryLine from '../../components/molecule/DraggableBoundaryLine'
 import GlobalHeader from '../../components/organism/GlobalHeader'
 
 function WorkspacePage() {
-  const { channelId } = useParams()
+  const { channelId, workspaceId } = useParams()
   const [listWidth, setListWidth] = useState(250)
   const [sidebarWidth, setSidebarWidth] = useState(0)
   const modal = useRecoilValue(modalRecoil)
-  const [workspaceUserInfo] = useWorkspace()
-
-  useSocket()
-
+  useInitializeAtoms(workspaceId)
   useEffect(() => {
     if (Notification.permission !== 'denied') {
       Notification.requestPermission()
@@ -43,16 +38,15 @@ function WorkspacePage() {
       case 'more':
         return ConstructionPage()
       default:
-        return workspaceUserInfo && <ChatRoom width={sidebarWidth} />
+        return <ChatRoom width={sidebarWidth} />
     }
   }
-
   return (
     <PageStyle>
       {modal}
       <GlobalHeader />
       <MainArea>
-        <SideBar width={listWidth} workspaceUserInfo={workspaceUserInfo} />
+        <SideBar width={listWidth} />
         <DraggableBoundaryLine setWidth={setListWidth} min="150" max="450" />
         <ContentsArea width={listWidth}>
           {switching()}
@@ -79,6 +73,7 @@ const ConstructionPage = () => {
     </SwitchContentsArea>
   )
 }
+
 const customIconStyle = {
   fontSize: '100px',
   color: COLOR.LABEL_SELECT_TEXT,

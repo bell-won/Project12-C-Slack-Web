@@ -10,13 +10,16 @@ import Modal from '../../../atom/Modal'
 import SelectedUserCard from '../../../molecule/SelectedUserCard'
 import SearchUserList from '../../../molecule/SearchUserList'
 import ChannelCard from '../../../molecule/ChannelCard'
-import { workspaceRecoil, currentChannelInfoRecoil } from '../../../../store'
+import {
+  workspaceRecoil,
+  currentChannelInfoRecoil,
+  useSetChannels,
+} from '../../../../store'
 import { createChannel, findChannelIdByName } from '../../../../api/channel'
 import { getWorkspaceUserInfoByInfoId } from '../../../../api/workspace'
 import { debounce } from '../../../../util'
 import request from '../../../../util/request'
 import dmTitleGenerator from '../../../../util/dmTitleGenerator'
-import useChannelList from '../../../../hooks/useChannelList'
 import { LOCK, HASHTAG, CLOSE } from '../../../../constant/icon'
 import { SOCKET_EVENT } from '../../../../constant'
 
@@ -29,7 +32,7 @@ function InviteUserToChannelModal({ handleClose, type = 'channel' }) {
   const { workspaceId } = useParams()
   const { _id: workspaceUserInfoId } = useRecoilValue(workspaceRecoil)
   const history = useHistory()
-  const [, updateChannelList] = useChannelList()
+  const setChannels = useSetChannels()
 
   const SearchUser = async search => {
     if (search.length === 0) return setSearchResult(null)
@@ -92,13 +95,13 @@ function InviteUserToChannelModal({ handleClose, type = 'channel' }) {
       setModal(null)
     }
 
-    updateChannelList()
+    setChannels()
     history.push(`/workspace/${workspaceId}/${channelId}`)
   }
 
   const inviteUser = async () => {
-    if (type === 'channel') return await inviteToChannel()
-    else if (type === 'DM') return await inviteToDM()
+    if (type === 'channel') await inviteToChannel()
+    if (type === 'DM') await inviteToDM()
   }
 
   const handleDebounce = useRef(debounce(SearchUser, 1000)).current

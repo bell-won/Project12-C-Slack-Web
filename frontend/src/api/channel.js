@@ -63,3 +63,8 @@ export const findChannelIdByName = async ({ title }) => {
   const { data } = await Request.GET(`/api/channel/info?title=${title}`)
   return data?.data
 }
+
+export const getChannelList = async ({ workspaceUserInfoId }) => {
+  const { data } = await Request.GET('/api/channel', { workspaceUserInfoId })
+  return data.result
+}
