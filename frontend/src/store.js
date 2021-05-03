@@ -1,7 +1,22 @@
 import { useCallback, useEffect } from 'react'
-import { atom, selector, useRecoilValue, useSetRecoilState } from 'recoil'
+import {
+  atom,
+  selector,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from 'recoil'
 import { getChannelList } from './api/channel'
 import { getWorkspaceUserInfo } from './api/workspace'
+import { SOCKET_EVENT } from './constant'
+import io from 'socket.io-client'
+import { isEmpty } from './util'
+
+const baseURL =
+  process.env.NODE_ENV === 'development'
+    ? process.env.REACT_APP_DEV_CHAT_HOST
+    : process.env.REACT_APP_CHAT_HOST
+
 export const workspaceRecoil = atom({
   key: 'workspace',
   default: null,
@@ -30,18 +45,48 @@ export const socketRecoil = atom({
 
 export const useInitializeAtoms = workspaceId => {
   const setWorkspaceInfo = useSetRecoilState(workspaceRecoil)
-  const setChannelList = useSetRecoilState(channelsRecoil)
+  const [channels, setChannels] = useRecoilState(channelsRecoil)
+  const [socket, setSocket] = useRecoilState(socketRecoil)
   useEffect(
     function didMount() {
       const initializeAtoms = async () => {
-        const workspaceInfo = await getWorkspaceUserInfo({ workspaceId })
-        const workspaceUserInfoId = workspaceInfo._id
-        setWorkspaceInfo(workspaceInfo)
-        setChannelList(await getChannelList({ workspaceUserInfoId }))
+        const workspaceUserInfo = await getWorkspaceUserInfo({ workspaceId })
+        const workspaceUserInfoId = workspaceUserInfo._id
+        const channels = await getChannelList({ workspaceUserInfoId })
+        const socket = io(`${baseURL}/${workspaceId}`, {
+          query: {
+            workspaceId,
+            workspaceUserInfoId,
+          },
+        })
+        setWorkspaceInfo(workspaceUserInfo)
+        setChannels(channels)
+        setSocket(socket)
+        return function cleanUp() {
+          socket.disconnect()
+        }
       }
-      initializeAtoms()
+      return initializeAtoms()
     },
-    [setChannelList, setWorkspaceInfo, workspaceId],
+    [workspaceId, setChannels, setSocket, setWorkspaceInfo],
+  )
+  useEffect(
+    function excuteWhenChannelsChanged() {
+      if (socket && !isEmpty(channels)) {
+        socket.emit(
+          SOCKET_EVENT.JOIN_ROOM,
+          channels.map(channel => channel.channelId._id),
+        )
+      }
+      return function cleanUp() {
+        if (socket)
+          socket.emit(
+            SOCKET_EVENT.LEAVE_ROOM,
+            channels.map(channel => channel.channelId._id),
+          )
+      }
+    },
+    [socket, channels],
   )
 }
 
@@ -77,10 +122,10 @@ export const useSetChannels = () => {
   const workspaceUserInfo = useRecoilValue(workspaceRecoil)
   const workspaceUserInfoId = workspaceUserInfo?._id
   const setter = useSetRecoilState(channelsRecoil)
-  const setChannelList = useCallback(async () => {
+  const setChannels = useCallback(async () => {
     setter(await getChannelList({ workspaceUserInfoId }))
   }, [workspaceUserInfoId, setter])
-  return setChannelList
+  return setChannels
 }
 
 export const useChannels = () => {

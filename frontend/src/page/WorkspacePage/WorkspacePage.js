@@ -10,7 +10,6 @@ import ThreadSideBar from '../../components/organism/ThreadSideBar'
 import { COLOR } from '../../constant/style'
 import Icon from '../../components/atom/Icon'
 import { TOOLS } from '../../constant/icon'
-import useSocket from '../../hooks/useSocket'
 import DraggableBoundaryLine from '../../components/molecule/DraggableBoundaryLine'
 import GlobalHeader from '../../components/organism/GlobalHeader'
 
@@ -20,7 +19,6 @@ function WorkspacePage() {
   const [sidebarWidth, setSidebarWidth] = useState(0)
   const modal = useRecoilValue(modalRecoil)
   useInitializeAtoms(workspaceId)
-  useSocket()
   useEffect(() => {
     if (Notification.permission !== 'denied') {
       Notification.requestPermission()
