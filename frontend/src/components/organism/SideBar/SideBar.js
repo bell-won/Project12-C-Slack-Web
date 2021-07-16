@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import styled from 'styled-components'
 import ChannelSection from '../ChannelSection'
 import StaticSideMenuCard from '../../molecule/StaticSideMenuCard'
 import Icon from '../../atom/Icon'
+import { useParams } from 'react-router'
+
 import Button, { whiteButtonStyle } from '../../atom/Button'
-import { workspaceRecoil, sectionRecoil } from '../../../store'
+import { sectionsFromChannels, workspaceQuery } from '../../../store'
 import { COLOR } from '../../../constant/style'
 import {
   EDIT,
@@ -18,8 +20,9 @@ import {
 import { useRecoilValue } from 'recoil'
 
 function SideBar({ width }) {
-  const sections = useRecoilValue(sectionRecoil)
-  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
+  const { workspaceId } = useParams()
+  const sections = useRecoilValue(sectionsFromChannels(workspaceId))
+  const workspaceUserInfo = useRecoilValue(workspaceQuery(workspaceId))
   return (
     <SideBarContainer width={width}>
       {workspaceUserInfo !== null && (
@@ -125,4 +128,11 @@ const NameArea = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
 `
-export default SideBar
+const Content = ({ width }) => {
+  return (
+    <Suspense fallback={<SideBarContainer width={width} />}>
+      <SideBar width={width} />
+    </Suspense>
+  )
+}
+export default Content

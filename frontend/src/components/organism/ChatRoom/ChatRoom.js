@@ -1,23 +1,30 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  Suspense,
+} from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import ChatMessage from '../ChatMessage'
 import { COLOR } from '../../../constant/style'
 import { getChatMessage } from '../../../api/chat'
 import MessageEditor from '../MessageEditor/MessageEditor'
 import {
-  workspaceRecoil,
+  workspaceQuery,
   socketRecoil,
-  currentChannelInfoRecoil,
-  useSetChannels,
+  channelInfoQuery,
+  useRefreshChannelInfo,
+  useRefreshChannels,
+  useInitSocket,
 } from '../../../store'
 import ChannelHeader from '../ChannelHeader'
 import { isEmpty } from '../../../util'
 import { hasMyReaction, chageReactionState } from '../../../util/reactionUpdate'
 import Icon from '../../atom/Icon'
 import { ArrowDown } from '../../../constant/icon'
-import { getChannelHeaderInfo } from '../../../api/channel'
 import { SOCKET_EVENT } from '../../../constant'
 
 const ChatRoom = ({ width }) => {
@@ -28,14 +35,18 @@ const ChatRoom = ({ width }) => {
   const isLoading = useRef(false)
   const isAllMessageFetched = useRef(false)
   const isReading = useRef(false)
-  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
-  const [channelInfo, setChannelInfo] = useRecoilState(currentChannelInfoRecoil)
-  const setChannels = useSetChannels()
   const { workspaceId, channelId } = useParams()
+  const workspaceUserInfo = useRecoilValue(workspaceQuery(workspaceId))
+  const refreshChannels = useRefreshChannels(workspaceId)
+  const channelInfo = useRecoilValue(
+    channelInfoQuery({ workspaceId, channelId }),
+  )
+  const refreshChannelInfo = useRefreshChannelInfo({ workspaceId, channelId })
   const socket = useRecoilValue(socketRecoil)
   const [messages, setMessages] = useState([])
   const [previousReadMessageIndex, setPreviousReadMessageIndex] = useState(0)
   const [hasUnreadMessage, setHasUnreadMessage] = useState(false)
+  useInitSocket(workspaceId)
 
   const loadMessage = useCallback(
     async (workspaceId, channelId, currentCursor) => {
@@ -57,20 +68,6 @@ const ChatRoom = ({ width }) => {
     },
     [messages],
   )
-
-  const updateChannelInfo = useCallback(async () => {
-    if (workspaceUserInfo && channelId)
-      setChannelInfo(
-        await getChannelHeaderInfo({
-          workspaceUserInfoId: workspaceUserInfo._id,
-          channelId,
-        }),
-      )
-  }, [channelId, workspaceUserInfo, setChannelInfo])
-
-  useEffect(() => {
-    updateChannelInfo()
-  }, [channelId, workspaceUserInfo, updateChannelInfo])
 
   useEffect(() => {
     setMessages([])
@@ -103,7 +100,6 @@ const ChatRoom = ({ width }) => {
 
   useEffect(() => {
     if (socket) {
-      console.log('object')
       const workspaceUserInfoId = workspaceUserInfo._id
       socket.on(SOCKET_EVENT.NEW_MESSAGE, ({ message }) => {
         if (message.channelId === channelId) {
@@ -144,12 +140,8 @@ const ChatRoom = ({ width }) => {
       socket.on(
         SOCKET_EVENT.INVITED_CHANNEL,
         ({ channelId: invitedChannelId, newMember }) => {
-          if (channelId === invitedChannelId)
-            updateChannelInfo({
-              channelId,
-              workspaceUserInfoId,
-            })
-          if (newMember.includes(workspaceUserInfoId)) setChannels()
+          if (channelId === invitedChannelId) refreshChannelInfo()
+          if (newMember.includes(workspaceUserInfoId)) refreshChannels()
         },
       )
     }
@@ -161,7 +153,13 @@ const ChatRoom = ({ width }) => {
         socket.off(SOCKET_EVENT.INVITED_CHANNEL)
       }
     }
-  }, [socket, channelId, workspaceUserInfo, updateChannelInfo, setChannels])
+  }, [
+    socket,
+    channelId,
+    workspaceUserInfo,
+    refreshChannelInfo,
+    refreshChannels,
+  ])
 
   useEffect(() => {
     const handleIntersection = (entries, observer) => {
@@ -291,5 +289,12 @@ const UnreadMessage = styled.div`
 const MessageEnd = styled.div`
   min-height: 1px;
 `
+const Content = ({ width }) => {
+  return (
+    <Suspense fallback={<ChatArea width={width} />}>
+      <ChatRoom width={width} />
+    </Suspense>
+  )
+}
 
-export default ChatRoom
+export default Content

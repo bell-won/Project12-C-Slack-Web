@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { useRecoilValue } from 'recoil'
 import { useHistory, useParams } from 'react-router-dom'
 
-import { workspaceRecoil, useSetChannels } from '../../../../store'
+import { workspaceQuery, useRefreshChannels } from '../../../../store'
 import Modal from '../../../atom/Modal'
 import H, { defaultH1Style } from '../../../atom/H'
 import Icon from '../../../atom/Icon'
@@ -32,8 +32,11 @@ const DUPLICATED_NAME_ERROR =
 const CreateChannelModal = ({ handleClose }) => {
   const history = useHistory()
   const { workspaceId } = useParams()
-  const { _id: workspaceUserInfoId } = useRecoilValue(workspaceRecoil)
-  const setChannels = useSetChannels()
+  const refreshChannels = useRefreshChannels(workspaceId)
+  const { _id: workspaceUserInfoId } = useRecoilValue(
+    workspaceQuery(workspaceId),
+  )
+
   const [isPrivate, setPrivateOption] = useState(false)
   const [channelName, setChannelName] = useState('')
   const [channelDescription, setChannelDescription] = useState('')
@@ -58,7 +61,7 @@ const CreateChannelModal = ({ handleClose }) => {
       description: channelDescription,
       workspaceId,
     })
-    setChannels()
+    refreshChannels()
     history.push(`/workspace/${workspaceId}/${channelId}`)
     handleClose()
   }

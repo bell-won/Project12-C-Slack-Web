@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil'
 import ChannelBrowserCard from '../../../molecule/ChannelBrowserCard'
 import { useParams } from 'react-router-dom'
 
-import { workspaceRecoil } from '../../../../store'
+import { workspaceQuery } from '../../../../store'
 import Modal from '../../../atom/Modal'
 import H, { defaultH1Style } from '../../../atom/H'
 import Icon from '../../../atom/Icon'
@@ -15,8 +15,8 @@ import { COLOR } from '../../../../constant/style'
 
 function ChannelBrowserModal({ handleClose }) {
   const [channelList, setChannelList] = useState([])
-  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
   const { workspaceId } = useParams()
+  const workspaceUserInfo = useRecoilValue(workspaceQuery(workspaceId))
 
   useEffect(() => {
     if (workspaceUserInfo) {
