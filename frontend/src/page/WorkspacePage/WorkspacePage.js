@@ -2,7 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import styled from 'styled-components'
 import { useParams, Route } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
-import { modalRecoil, useSocket } from '../../store'
+import { modalRecoil, useInitSocket } from '../../store'
 
 import SideBar from '../../components/organism/SideBar'
 import ChatRoom from '../../components/organism/ChatRoom'
@@ -45,13 +45,10 @@ function WorkspacePage() {
       {modal}
       <GlobalHeader />
       <MainArea>
-        <Suspense fallback={<div>loading...</div>}>
-          <SideBar width={listWidth} />
-        </Suspense>
+        <SideBar width={listWidth} />
         <DraggableBoundaryLine setWidth={setListWidth} min="150" max="450" />
         <ContentsArea width={listWidth}>
-          <Suspense fallback={<div>loading...</div>}>{switching()}</Suspense>
-
+          {switching()}
           <Route exact path={'/workspace/:workspaceId/:channelId/:chatId'}>
             <ThreadSideBar
               sidebarWidth={sidebarWidth}

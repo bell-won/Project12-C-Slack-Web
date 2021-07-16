@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, Suspense } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 import styled from 'styled-components'
@@ -12,6 +12,7 @@ import { CLOSE } from '../../../constant/icon'
 import { SOCKET_EVENT } from '../../../constant'
 import { socketRecoil, workspaceQuery } from '../../../store'
 import { hasMyReaction, chageReactionState } from '../../../util/reactionUpdate'
+
 function ThreadSideBar({ sidebarWidth, setSidebarWidth }) {
   const { workspaceId, channelId, chatId } = useParams()
   const [sidebarChat, setSidebarChat] = useState(null)
@@ -211,4 +212,14 @@ const CountReplyArea = styled.div`
   padding: 16px;
   align-items: center;
 `
-export default ThreadSideBar
+const Content = ({ sidebarWidth, setSidebarWidth }) => {
+  return (
+    <Suspense fallback={<ThreadSideBarContainer width={sidebarWidth} />}>
+      <ThreadSideBar
+        sidebarWidth={sidebarWidth}
+        setSidebarWidth={setSidebarWidth}
+      />
+    </Suspense>
+  )
+}
+export default Content

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import styled from 'styled-components'
 import ChannelSection from '../ChannelSection'
 import StaticSideMenuCard from '../../molecule/StaticSideMenuCard'
@@ -128,4 +128,11 @@ const NameArea = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
 `
-export default SideBar
+const Content = ({ width }) => {
+  return (
+    <Suspense fallback={<SideBarContainer width={width} />}>
+      <SideBar width={width} />
+    </Suspense>
+  )
+}
+export default Content

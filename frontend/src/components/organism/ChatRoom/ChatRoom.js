@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  Suspense,
+} from 'react'
 import styled from 'styled-components'
 import { useParams } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
@@ -283,5 +289,12 @@ const UnreadMessage = styled.div`
 const MessageEnd = styled.div`
   min-height: 1px;
 `
+const Content = ({ width }) => {
+  return (
+    <Suspense fallback={<ChatArea width={width} />}>
+      <ChatRoom width={width} />
+    </Suspense>
+  )
+}
 
-export default ChatRoom
+export default Content
