@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { useHistory } from 'react-router'
+import { useHistory, useParams } from 'react-router'
 import { toast } from 'react-toastify'
 import { useRecoilValue } from 'recoil'
 
 import Icon from '../../atom/Icon'
 import request from '../../../util/request'
 import { COLOR } from '../../../constant/style'
-import { workspaceRecoil, useSetChannels } from '../../../store'
+import { useRefreshChannels, workspaceQuery } from '../../../store'
 import { STAR, COLOREDSTAR } from '../../../constant/icon'
 import { isEmpty } from '../../../util'
 
@@ -17,8 +17,11 @@ function ChannelStarButton({
   },
 }) {
   const [sectionInfo, setSectionInfo] = useState(sectionName)
-  const setChannels = useSetChannels()
-  const { _id: workspaceUserInfoId } = useRecoilValue(workspaceRecoil)
+  const { workspaceId } = useParams()
+  const refreshChannels = useRefreshChannels(workspaceId)
+  const { _id: workspaceUserInfoId } = useRecoilValue(
+    workspaceQuery(workspaceId),
+  )
   const history = useHistory()
 
   const updateSection = async () => {
@@ -33,7 +36,7 @@ function ChannelStarButton({
       })
 
       if (data.success) setSectionInfo(currentSectionName)
-      setChannels()
+      refreshChannels()
     } catch (err) {
       toast.error('채널 섹션 정보를 가져오는데 오류가 발생했습니다.', {
         onClose: () => history.goBack(),

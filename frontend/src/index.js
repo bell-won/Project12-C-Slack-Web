@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import WorkspacePage from './page/WorkspacePage'
 import { BrowserRouter, Route } from 'react-router-dom'
@@ -28,10 +28,12 @@ const App = () => {
             path="/create-workspace"
             component={Auth(CreateWorkspace, true)}
           />
-          <Route
-            path="/workspace/:workspaceId/:channelId"
-            component={Auth(WorkspacePage, true)}
-          />
+          <Suspense fallback={<div>loading...</div>}>
+            <Route
+              path="/workspace/:workspaceId/:channelId"
+              component={Auth(WorkspacePage, true)}
+            />
+          </Suspense>
         </BrowserRouter>
       </RecoilRoot>
     </React.StrictMode>

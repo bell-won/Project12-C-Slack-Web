@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { useSetRecoilState, useRecoilValue } from 'recoil'
+import { useParams } from 'react-router-dom'
 
 import Icon from '../../atom/Icon'
 import { ADDUSER, INFOCIRCLE, LOCK, HASHTAG } from '../../../constant/icon'
@@ -8,7 +9,7 @@ import ChannelCard from '../../molecule/ChannelCard'
 import ChannelStarButton from '../../molecule/ChannelStarButton'
 import ChannelTopicButton from '../../molecule/ChannelTopicButton'
 import ChannelMemberThumbnail from '../../molecule/ChannelMemberThumbnail'
-import { modalRecoil, currentChannelInfoRecoil } from '../../../store'
+import { modalRecoil, channelInfoQuery } from '../../../store'
 import InviteUserToChannelModal from '../Modal/InviteUserToChannelModal'
 import dmTitleGenerator from '../../../util/dmTitleGenerator'
 import { COLOR } from '../../../constant/style'
@@ -17,7 +18,10 @@ import { THUMBTACK } from '../../../constant/icon'
 
 function ChannelHeader() {
   const setModal = useSetRecoilState(modalRecoil)
-  const channelInfo = useRecoilValue(currentChannelInfoRecoil)
+  const { workspaceId, channelId } = useParams()
+  const channelInfo = useRecoilValue(
+    channelInfoQuery({ workspaceId, channelId }),
+  )
   const openAddUserModal = () => {
     setModal(<InviteUserToChannelModal handleClose={() => setModal(null)} />)
   }

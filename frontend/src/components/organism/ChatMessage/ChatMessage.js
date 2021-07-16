@@ -10,7 +10,7 @@ import ActionBar from '../ActionBar'
 import ViewThreadButton from '../../molecule/ViewThreadButton'
 import { isEmpty } from '../../../util'
 import { SIZE, COLOR } from '../../../constant/style'
-import { workspaceRecoil, socketRecoil } from '../../../store'
+import { workspaceQuery, socketRecoil } from '../../../store'
 import FilePreview from '../../molecule/FilePreview'
 import { SOCKET_EVENT } from '../../../constant'
 const ChatMessage = forwardRef(
@@ -31,7 +31,7 @@ const ChatMessage = forwardRef(
     const { workspaceId, channelId } = useParams()
     const [openModal, setOpenModal] = useState(false)
     const [hover, setHover] = useState(false)
-    const workspaceUserInfo = useRecoilValue(workspaceRecoil)
+    const workspaceUserInfo = useRecoilValue(workspaceQuery(workspaceId))
     const socket = useRecoilValue(socketRecoil)
 
     const updateReaction = ({ emoji, chatId, channelId, type }) => {

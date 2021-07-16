@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import styled from 'styled-components'
 import { useParams, Route } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
-import { modalRecoil, useInitializeAtoms } from '../../store'
+import { modalRecoil, useSocket } from '../../store'
 
 import SideBar from '../../components/organism/SideBar'
 import ChatRoom from '../../components/organism/ChatRoom'
@@ -14,11 +14,10 @@ import DraggableBoundaryLine from '../../components/molecule/DraggableBoundaryLi
 import GlobalHeader from '../../components/organism/GlobalHeader'
 
 function WorkspacePage() {
-  const { channelId, workspaceId } = useParams()
+  const { channelId } = useParams()
   const [listWidth, setListWidth] = useState(250)
   const [sidebarWidth, setSidebarWidth] = useState(0)
   const modal = useRecoilValue(modalRecoil)
-  useInitializeAtoms(workspaceId)
   useEffect(() => {
     if (Notification.permission !== 'denied') {
       Notification.requestPermission()
@@ -46,10 +45,12 @@ function WorkspacePage() {
       {modal}
       <GlobalHeader />
       <MainArea>
-        <SideBar width={listWidth} />
+        <Suspense fallback={<div>loading...</div>}>
+          <SideBar width={listWidth} />
+        </Suspense>
         <DraggableBoundaryLine setWidth={setListWidth} min="150" max="450" />
         <ContentsArea width={listWidth}>
-          {switching()}
+          <Suspense fallback={<div>loading...</div>}>{switching()}</Suspense>
 
           <Route exact path={'/workspace/:workspaceId/:channelId/:chatId'}>
             <ThreadSideBar

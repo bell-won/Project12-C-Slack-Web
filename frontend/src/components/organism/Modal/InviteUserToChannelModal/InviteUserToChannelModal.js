@@ -11,9 +11,9 @@ import SelectedUserCard from '../../../molecule/SelectedUserCard'
 import SearchUserList from '../../../molecule/SearchUserList'
 import ChannelCard from '../../../molecule/ChannelCard'
 import {
-  workspaceRecoil,
-  currentChannelInfoRecoil,
-  useSetChannels,
+  channelInfoQuery,
+  workspaceQuery,
+  useRefreshChannels,
 } from '../../../../store'
 import { createChannel, findChannelIdByName } from '../../../../api/channel'
 import { getWorkspaceUserInfoByInfoId } from '../../../../api/workspace'
@@ -24,16 +24,20 @@ import { LOCK, HASHTAG, CLOSE } from '../../../../constant/icon'
 import { SOCKET_EVENT } from '../../../../constant'
 
 function InviteUserToChannelModal({ handleClose, type = 'channel' }) {
-  const channelInfo = useRecoilValue(currentChannelInfoRecoil)
   const setModal = useSetRecoilState(modalRecoil)
   const socket = useRecoilValue(socketRecoil)
   const [searchResult, setSearchResult] = useState(null)
   const [inviteUserList, setInviteUserList] = useState([])
-  const { workspaceId } = useParams()
-  const { _id: workspaceUserInfoId } = useRecoilValue(workspaceRecoil)
-  const history = useHistory()
-  const setChannels = useSetChannels()
+  const { workspaceId, channelId } = useParams()
+  const { _id: workspaceUserInfoId } = useRecoilValue(
+    workspaceQuery(workspaceId),
+  )
 
+  const history = useHistory()
+  const channelInfo = useRecoilValue(
+    channelInfoQuery({ workspaceId, channelId }),
+  )
+  const refreshChannels = useRefreshChannels(workspaceId)
   const SearchUser = async search => {
     if (search.length === 0) return setSearchResult(null)
     const { data } = await request.POST('/api/search/user', {
@@ -94,8 +98,7 @@ function InviteUserToChannelModal({ handleClose, type = 'channel' }) {
       })
       setModal(null)
     }
-
-    setChannels()
+    refreshChannels()
     history.push(`/workspace/${workspaceId}/${channelId}`)
   }
 

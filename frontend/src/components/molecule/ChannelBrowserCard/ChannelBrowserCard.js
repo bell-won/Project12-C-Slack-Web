@@ -4,7 +4,7 @@ import Button from '../../atom/Button'
 import Description from '../../atom/Description'
 import { useHistory, useParams } from 'react-router'
 import { leaveChannel, joinChannel } from '../../../api/channel'
-import { workspaceRecoil, useSetChannels } from '../../../store'
+import { useRefreshChannels, workspaceQuery } from '../../../store'
 import { COLOR } from '../../../constant/style'
 import { useRecoilValue } from 'recoil'
 
@@ -17,8 +17,8 @@ function ChannelBrowserCard({
   workspaceUserInfoId,
 }) {
   const { workspaceId, channelId } = useParams()
-  const setChannels = useSetChannels()
-  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
+  const workspaceUserInfo = useRecoilValue(workspaceQuery(workspaceId))
+  const refreshChannels = useRefreshChannels(workspaceId)
   const history = useHistory()
   const defaultChannel = workspaceUserInfo.workspaceInfo.default_channel
 
@@ -37,7 +37,7 @@ function ChannelBrowserCard({
         channelId: _id,
       })
     }
-    setChannels()
+    refreshChannels()
     handleClose()
   }
   const createButton = () => {

@@ -1,12 +1,13 @@
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import {
   atom,
-  selector,
+  atomFamily,
+  selectorFamily,
   useRecoilState,
   useRecoilValue,
   useSetRecoilState,
 } from 'recoil'
-import { getChannelList } from './api/channel'
+import { getChannelList, getChannelHeaderInfo } from './api/channel'
 import { getWorkspaceUserInfo } from './api/workspace'
 import { SOCKET_EVENT } from './constant'
 import io from 'socket.io-client'
@@ -16,21 +17,6 @@ const baseURL =
   process.env.NODE_ENV === 'development'
     ? process.env.REACT_APP_DEV_CHAT_HOST
     : process.env.REACT_APP_CHAT_HOST
-
-export const workspaceRecoil = atom({
-  key: 'workspace',
-  default: null,
-})
-
-export const currentChannelInfoRecoil = atom({
-  key: 'currentChannel',
-  default: '',
-})
-
-export const channelsRecoil = atom({
-  key: 'channels',
-  default: [],
-})
 
 export const modalRecoil = atom({
   key: 'modal',
@@ -43,67 +29,114 @@ export const socketRecoil = atom({
   dangerouslyAllowMutability: true,
 })
 
-export const useInitializeAtoms = workspaceId => {
-  const setWorkspaceInfo = useSetRecoilState(workspaceRecoil)
-  const [channels, setChannels] = useRecoilState(channelsRecoil)
-  const [socket, setSocket] = useRecoilState(socketRecoil)
-  useEffect(
-    function didMount() {
-      const initializeAtoms = async () => {
-        const workspaceUserInfo = await getWorkspaceUserInfo({ workspaceId })
-        const workspaceUserInfoId = workspaceUserInfo._id
-        const channels = await getChannelList({ workspaceUserInfoId })
-        const socket = io(`${baseURL}/${workspaceId}`, {
-          query: {
-            workspaceId,
-            workspaceUserInfoId,
-          },
-        })
-        setWorkspaceInfo(workspaceUserInfo)
-        setChannels(channels)
-        setSocket(socket)
-        return function cleanUp() {
-          socket.disconnect()
-        }
-      }
-      return initializeAtoms()
-    },
-    [workspaceId, setChannels, setSocket, setWorkspaceInfo],
+export const channelInfoQueryRequestID = atomFamily({
+  key: 'channelInfoQueryRequestID',
+  default: 0,
+})
+
+export const channelInfoQuery = selectorFamily({
+  key: 'channelInfoQuery',
+  get: ({ workspaceId, channelId }) => async ({ get }) => {
+    const { _id: workspaceUserInfoId } = get(workspaceQuery(workspaceId))
+    get(channelInfoQueryRequestID({ workspaceUserInfoId, channelId }))
+    return await getChannelHeaderInfo({ workspaceUserInfoId, channelId })
+  },
+})
+
+export const useRefreshChannelInfo = ({ workspaceId, channelId }) => {
+  const { _id: workspaceUserInfoId } = useRecoilValue(
+    workspaceQuery(workspaceId),
   )
-  useEffect(
-    function excuteWhenChannelsChanged() {
-      if (socket && !isEmpty(channels)) {
+  const setChannelInfoQueryRequestID = useSetRecoilState(
+    channelInfoQueryRequestID({ workspaceUserInfoId, channelId }),
+  )
+  return () => {
+    setChannelInfoQueryRequestID(requestID => requestID + 1)
+  }
+}
+
+export const workspaceQuery = selectorFamily({
+  key: 'workspaceUserInfoQuery',
+  get: workspaceId => async () => getWorkspaceUserInfo({ workspaceId }),
+})
+
+export const channelsQueryRequestID = atomFamily({
+  key: 'channelsQueryRequestID',
+  default: 0,
+})
+
+export const channelsQuery = selectorFamily({
+  key: 'channelsQuery',
+  get: workspaceId => async ({ get }) => {
+    const { _id: workspaceUserInfoId } = get(workspaceQuery(workspaceId))
+    get(channelsQueryRequestID(workspaceUserInfoId))
+    return Object.values(await getChannelList({ workspaceUserInfoId }))
+  },
+})
+
+export const useRefreshChannels = workspaceId => {
+  const { _id: workspaceUserInfoId } = useRecoilValue(
+    workspaceQuery(workspaceId),
+  )
+  const setChannelsQueryRequestID = useSetRecoilState(
+    channelsQueryRequestID(workspaceUserInfoId),
+  )
+  return () => {
+    setChannelsQueryRequestID(requestID => requestID + 1)
+  }
+}
+
+export const sectionsFromChannels = selectorFamily({
+  key: 'sections',
+  get: workspaceId => ({ get }) => {
+    const channels = get(channelsQuery(workspaceId))
+    return Object.entries(
+      channels.reduce(classifySections, {
+        [DM_SECTION_NAME]: [],
+        [DEFAULT_SECTION_NAME]: [],
+      }),
+    ).reverse()
+  },
+})
+
+export const useInitSocket = workspaceId => {
+  const [socket, setSocket] = useRecoilState(socketRecoil)
+  const { _id: workspaceUserInfoId } = useRecoilValue(
+    workspaceQuery(workspaceId),
+  )
+  const channels = useRecoilValue(channelsQuery(workspaceId))
+  useEffect(() => {
+    const socket = io(`${baseURL}/${workspaceId}`, {
+      query: {
+        workspaceId,
+        workspaceUserInfoId,
+      },
+    })
+    setSocket(socket)
+    return function cleanUp() {
+      socket.disconnect()
+    }
+  }, [workspaceId, workspaceUserInfoId, setSocket])
+  useEffect(() => {
+    if (socket && !isEmpty(channels)) {
+      socket.emit(
+        SOCKET_EVENT.JOIN_ROOM,
+        channels.map(channel => channel.channelId._id),
+      )
+    }
+    return function cleanUp() {
+      if (socket)
         socket.emit(
-          SOCKET_EVENT.JOIN_ROOM,
+          SOCKET_EVENT.LEAVE_ROOM,
           channels.map(channel => channel.channelId._id),
         )
-      }
-      return function cleanUp() {
-        if (socket)
-          socket.emit(
-            SOCKET_EVENT.LEAVE_ROOM,
-            channels.map(channel => channel.channelId._id),
-          )
-      }
-    },
-    [socket, channels],
-  )
+    }
+  }, [workspaceId, channels, workspaceUserInfoId, setSocket, socket])
 }
 
 const DM_TYPE = 2
 const DM_SECTION_NAME = 'Direct messages'
 const DEFAULT_SECTION_NAME = 'Channels'
-
-export const sectionRecoil = selector({
-  key: 'sections',
-  get: ({ get }) =>
-    Object.entries(
-      get(channelsRecoil).reduce(classifySections, {
-        [DM_SECTION_NAME]: [],
-        [DEFAULT_SECTION_NAME]: [],
-      }),
-    ).reverse(),
-})
 
 const classifySections = (prev, channel) => {
   if (channel.sectionName) {
@@ -116,20 +149,4 @@ const classifySections = (prev, channel) => {
       : prev[DEFAULT_SECTION_NAME].push(channel)
   }
   return prev
-}
-
-export const useSetChannels = () => {
-  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
-  const workspaceUserInfoId = workspaceUserInfo?._id
-  const setter = useSetRecoilState(channelsRecoil)
-  const setChannels = useCallback(async () => {
-    setter(await getChannelList({ workspaceUserInfoId }))
-  }, [workspaceUserInfoId, setter])
-  return setChannels
-}
-
-export const useChannels = () => {
-  const channels = useRecoilValue(channelsRecoil)
-  const setChannels = useSetChannels()
-  return [channels, setChannels]
 }

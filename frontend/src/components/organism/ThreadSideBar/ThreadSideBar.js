@@ -10,7 +10,7 @@ import { getChatReplyMessage } from '../../../api/chat'
 import { COLOR } from '../../../constant/style'
 import { CLOSE } from '../../../constant/icon'
 import { SOCKET_EVENT } from '../../../constant'
-import { workspaceRecoil, socketRecoil } from '../../../store'
+import { socketRecoil, workspaceQuery } from '../../../store'
 import { hasMyReaction, chageReactionState } from '../../../util/reactionUpdate'
 function ThreadSideBar({ sidebarWidth, setSidebarWidth }) {
   const { workspaceId, channelId, chatId } = useParams()
@@ -18,7 +18,8 @@ function ThreadSideBar({ sidebarWidth, setSidebarWidth }) {
   const [replyContent, setReplyContent] = useState(null)
   const socket = useRecoilValue(socketRecoil)
   const messageEndRef = useRef()
-  const workspaceUserInfo = useRecoilValue(workspaceRecoil)
+  const workspaceUserInfo = useRecoilValue(workspaceQuery(workspaceId))
+
   const history = useHistory()
 
   useEffect(() => {
