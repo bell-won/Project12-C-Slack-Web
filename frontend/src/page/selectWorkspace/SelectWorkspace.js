@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import NewWorkspaceSection from '../../components/organism/NewWorkspaceSection'
-import MyWorkspaceSection from '../../components/organism/MyWorkspaceSection'
+import NewWorkspaceSection from '../../workspace/components/NewWorkspaceSection'
+import MyWorkspaceSection from '../../workspace/components/MyWorkspaceSection'
 
 const SelectWorkspace = () => {
   return (

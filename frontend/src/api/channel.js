@@ -1,4 +1,4 @@
-import Request from '../util/request'
+import Request from '../shared/utils/request'
 export const checkDuplicateChannelName = async ({ title, workspaceId }) => {
   const { data } = await Request.GET('/api/channel/check-duplicate-name', {
     title,

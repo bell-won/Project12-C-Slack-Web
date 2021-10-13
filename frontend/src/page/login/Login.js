@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { GITHUB } from '../../constant/icon'
-import Icon from '../../components/atom/Icon'
-import styled from 'styled-components'
-import Image from '../../components/atom/Image'
-import { isEmpty } from '../../util'
 import QueryString from 'qs'
-import Description from '../../components/atom/Description'
-import Button from '../../components/atom/Button'
-import { COLOR } from '../../constant/style'
+import styled from 'styled-components'
+
+import { GITHUB } from '../../shared/constant/icon'
+import { COLOR } from '../../shared/constant/style'
+import { isEmpty } from '../../shared/utils'
+
+import Icon from '../../shared/components/Icon'
+import Image from '../../shared/components/Image'
+import Description from '../../shared/components/Description'
+import Button from '../../shared/components/Button'
 
 const baseURL =
   process.env.NODE_ENV === 'development'
@@ -34,7 +36,7 @@ const LoginPage = props => {
       <LoginHeader>
         <Image
           alt="Slack"
-          src="https://a.slack-edge.com/bv1-8/slack_logo-ebd02d1.svg"
+          src="favicon.ico"
           title="Slack"
           customStyle={customImageStyle}
           onClick={gohomeHandle}
@@ -46,7 +48,7 @@ const LoginPage = props => {
         </Description>
         <Description>사용하려는 github 계정으로 계속해 주세요.</Description>
         <LoginDiv>
-          <form method="GET" action={baseURL + '/api/user/sign-in/github'}>
+          <form method="GET" action={`${baseURL}/api/user/sign-in/github`}>
             <Button customStyle={customButtonStyle}>
               <Icon icon={GITHUB} customStyle={customIconStyle} />
               Login With github

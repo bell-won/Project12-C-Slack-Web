@@ -1,4 +1,4 @@
-import Request from '../util/request'
+import Request from '../shared/utils/request'
 export const getWorkspaceUserInfo = async ({ workspaceId }) => {
   const { data } = await Request.GET(`/api/workspace/info/${workspaceId}`)
   return data.data
@@ -16,4 +16,11 @@ export const inviteWorkspace = async ({ workspaceId }) => {
     workspaceId: workspaceId,
   })
   return data.data
+}
+
+export const checkDuplicateWorkspaceName = async ({ name }) => {
+  const { data } = await Request.GET('/api/workspace/check-duplicate-name', {
+    name,
+  })
+  return data
 }
