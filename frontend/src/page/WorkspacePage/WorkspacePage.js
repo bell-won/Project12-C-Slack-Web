@@ -1,17 +1,18 @@
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { useParams, Route } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
-import { modalRecoil, useInitSocket } from '../../store'
 
-import SideBar from '../../components/organism/SideBar'
-import ChatRoom from '../../components/organism/ChatRoom'
-import ThreadSideBar from '../../components/organism/ThreadSideBar'
-import { COLOR } from '../../constant/style'
-import Icon from '../../components/atom/Icon'
-import { TOOLS } from '../../constant/icon'
-import DraggableBoundaryLine from '../../components/molecule/DraggableBoundaryLine'
-import GlobalHeader from '../../components/organism/GlobalHeader'
+import { modalRecoil } from '../../store'
+import { COLOR } from '../../shared/constant/style'
+import { TOOLS } from '../../shared/constant/icon'
+
+import SideBar from '../../channel/components/SideBar'
+import ChatRoom from '../../chat/components/ChatRoom'
+import ThreadSideBar from '../../chat/components/ThreadSideBar'
+import Icon from '../../shared/components/Icon'
+import DraggableBoundaryLine from '../../shared/components/DraggableBoundaryLine'
+import GlobalHeader from '../../workspace/components/GlobalHeader'
 
 function WorkspacePage() {
   const { channelId } = useParams()

@@ -1,4 +1,4 @@
-import Request from '../util/request'
+import Request from '../shared/utils/request'
 export const getChatMessage = async ({
   workspaceId,
   channelId,

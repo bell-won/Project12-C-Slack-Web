@@ -9,9 +9,9 @@ import {
 } from 'recoil'
 import { getChannelList, getChannelHeaderInfo } from './api/channel'
 import { getWorkspaceUserInfo } from './api/workspace'
-import { SOCKET_EVENT } from './constant'
+import { SOCKET_EVENT } from './shared/constant'
 import io from 'socket.io-client'
-import { isEmpty } from './util'
+import { isEmpty } from './shared/utils'
 
 const baseURL =
   process.env.NODE_ENV === 'development'
